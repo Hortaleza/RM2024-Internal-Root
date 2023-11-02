@@ -8,11 +8,6 @@
 #include "can.h"
 namespace DJIMotor
 {
-inline int16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower)
-{
-    return lower | (higher << 8);
-}
-
 void seperateIntoTwoBytes(const int16_t &original,
                           int8_t &higher,
                           int8_t &lower)
