@@ -64,8 +64,8 @@ class PID
 
     float output = 0;  // The current output of the PID
 
-    float maxRPM;
-    float minRPM;
+    float maxoutput;
+    float minoutput;
 
     float a = 0.8;
     float previousfilter = 0;
