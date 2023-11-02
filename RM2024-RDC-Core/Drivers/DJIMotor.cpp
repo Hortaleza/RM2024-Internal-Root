@@ -89,7 +89,7 @@ void DJIMotor::getFilter()
 {
     // TODO: Discuss if this function is necessary
     uint16_t filter_id = 0x200 + canID;
-    uint16_t filter_mask = 0x200 + canID;
+    uint16_t filter_mask = 0x7FF;
     // filter            = {0,
     //                      filterID,
     //                      0,
