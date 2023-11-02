@@ -18,15 +18,17 @@
 
 /*Allocate the stack for our PID task*/
 StackType_t uxPIDTaskStack[256];
+StackType_t uxControllerTaskStack[256];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
+StaticTask_t xControllerTaskTCB;
 int16_t currentRPM = 0;
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
-float myKp123           = 5;
+float myKp123           = 10;
 int16_t targetRPM = 5000;
-void userTask(void *)
+void motorTask(void *)
 {
     DJIMotor::MotorSet motorset;
     // TODO: motorset.setCurrentLimit();
@@ -47,28 +49,15 @@ void userTask(void *)
     }
 }
 
-/**
- * @todo In case you like it, please implement your own tasks
- */
-
+void controllerTask(void *)
+{
+    
+}
 
 /**
  * @brief Intialize all the drivers and add task to the scheduler
  * @todo  Add your own task in this file
 */
-
-void taskCANRxdataHandler(void *)
-{
-    uint32_t current_notification_value = 0;
-    while (1)  // Task should never return.
-    {
-        // Wait until receive notification (unblocked) from CAN rx interrupt.
-        if (xTaskNotifyWait(0, 0, &current_notification_value, portMAX_DELAY) == pdTRUE)
-        {
-
-        }
-    }
-}
 
 void startUserTasks()
 {
@@ -76,14 +65,21 @@ void startUserTasks()
     
     DR16::init();      // Intialize the DR16 driver
 
-    xTaskCreateStatic(userTask,
-                      "user_default",
+    xTaskCreateStatic(motorTask,
+                      "motorTask",
                       256,
                       NULL,
                       1,
                       uxPIDTaskStack,
                       &xPIDTaskTCB);  // Add the main task into the scheduler
+    xTaskCreateStatic(controllerTask,
+                      "controllerTask",
+                      256,
+                      NULL,
+                      1,
+                      uxControllerTaskStack,
+                      &xControllerTaskTCB)
     /**
      * @todo Add your own task here
-    */
+     */
 }
