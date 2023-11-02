@@ -24,11 +24,6 @@ class PID
 {
    public:
     /**
-     * @brief Delete the default constructor.
-     */
-    PID() = delete;
-
-    /**
      * @brief Constructor function
      * @param Kp_ The P term of the PID
      * @param Ki_ The I term of the PID

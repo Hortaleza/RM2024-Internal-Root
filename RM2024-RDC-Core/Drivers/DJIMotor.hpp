@@ -25,20 +25,37 @@
 namespace DJIMotor
 {
 
+uint16_t currentToOutput(float current);
+uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower)
+{
+    return lower | (higher << 8);
+}
+void seperateIntoTwoBytes(const uint16_t &original,
+                          uint8_t &higher,
+                          uint8_t &lower)
+{
+    higher = (original >> 8) & 0b11111111;
+    lower  = original & 0b11111111;
+}
+
+const float MAX_CURRENT = 20.0f;
 class DJIMotor
 {
    public:
-    uint8_t canID;
+    uint8_t canID;          // NOTE THAT canID = index + 1 !!!!!!!!
     uint8_t *txData1;
     uint8_t *txData2;
-
+    
     void init(uint8_t canID, uint8_t *txData1, uint8_t *txData2);
 
-    void setOutput(float output);
+    int setOutput(uint16_t output);
     int16_t getRPM();
     uint8_t getTemperature();
     int16_t getCurrent();
-    void operator=(float output) { setOutput(output); }
+    int operator=(uint16_t output) { return setOutput(output); }
+    int operator<<(float current) {
+        return setOutput(currentToOutput(currentToOutput(current)));
+    }
 
    private:
     CAN_FilterTypeDef filter;
