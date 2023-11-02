@@ -22,10 +22,56 @@
 
 #include "main.h"
 #include "can.h"
- //int16_t currentRPM = 0;
-   // uint32_t id = 2;
 namespace DJIMotor
 {
+
+class DJIMotor
+{
+   public:
+    uint8_t canID;
+    uint8_t *txData1;
+    uint8_t *txData2;
+
+    void init(uint8_t canID, uint8_t *txData1, uint8_t *txData2);
+
+    void setOutput(float output);
+    int16_t getRPM();
+    uint8_t getTemperature();
+    int16_t getCurrent();
+    void operator=(float output) { setOutput(output); }
+
+   private:
+    CAN_FilterTypeDef filter;
+    float position;
+    int16_t rpm;
+    int16_t actualCurrent;
+    //  int16_t setCurrent;
+    //  uint16_t currentLimit;
+
+    uint8_t temperature;
+
+    //  int32_t rotaryCnt;
+    //  int16_t positionOffset;
+
+    //  uint32_t disconnectCnt;
+    //  uint32_t receiveCnt;
+    bool connected;
+    void getFilter();
+    void update();
+};
+
+class MotorSet
+{
+   private:
+    DJIMotor motors[8];
+    uint8_t txData1[8] = {};
+    uint8_t txData2[8] = {};
+
+   public:
+    MotorSet();
+    DJIMotor &operator[](int i) { return motors[i]; }
+    void transmit();
+};
 
 /**
  * @brief A motor's handle. We do not require you to master the cpp class
@@ -41,73 +87,8 @@ namespace DJIMotor
  * 
  */
 
- 
-struct DJIMotor
-{
-    uint16_t canID;  // You need to assign motor's can ID for different motor
-                     // instance
-    /*======================================================*/
-    /**
-     * @brief Your self-defined variables are defined here
-     * @note  Please refer to the GM6020, M3508 motor's user manual that we have
-     * released on the Google Drive
-     * @example:
-     * uint16_t encoder;
-     * uint16_t rpm;
-     * float orientation; //  get the accumulated orientation of the motor
-     * ......
-     * 
-     */
-    /*=======================================================*/
-    
-};
-
-/**
- * @brief The whole motor's module initialization function
- * @note  You might initialize the CAN Module here
- * @retval
- */
 void init();
 
-/**
- * @brief The encoder getter fucntion
- * @param canID The unique CAN id of your motor
- * @note  You need to return the current encoder feedback outward, because you
- * need it in the PID module
- * @retval motor's raw encoder
- */
-float getEncoder(uint16_t canID);
-
-/**
- * @brief The rpm getter function
- * @param canID The unique CAN id of your motor
- * @note You need to return the current rpm feedback outward, becacause you need
- * it in the PID module
- * @retval motor's rpm
- */
-int getRPM(uint32_t canID);
-
-/**
- * @brief Set the motor's output here
- * @note  You might need to refer to the user manual to "clamp" the maximum or
- * the minimun output
- * @param output, canID The motor's output, unique can Id
- * @note
- * - For GM6020, it's the motor's voltage
- * - For M3508, it's the motor's currnet
- * @retval
- */
-void setOutput(int16_t output);
-
-/**
- * @brief Transmit the current set motor's output to the groups of motor based
- * on the CAN header
- * @param header The header of groups of motor
- * @note For clear reference, please refer to the GM6020 and M3508 User manual
- * @param
- * @retval
- */
-void transmit(uint16_t header);
 
 /*===========================================================*/
 /**

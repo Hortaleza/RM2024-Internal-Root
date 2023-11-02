@@ -41,7 +41,7 @@ void userTask(void *)
         //currentRPM = motor.getRPM();
        //static Control::PID motorPID(0, 0, 0);
         
-        currentRPM = DJIMotor::getRPM(id);
+        // // currentRPM = DJIMotor::getRPM(id);
 
         // float output = motorPID.update(targetRPM,currentRPM,0.001f);
 
