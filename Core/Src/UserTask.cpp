@@ -21,33 +21,28 @@ StackType_t uxPIDTaskStack[256];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 int16_t currentRPM = 0;
-uint32_t id = 0;
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
+int16_t targetRPM = 3;
 void userTask(void *)
 {
-    // DJIMotor::DJIMotor &motor = DJIMotor::getMotor();
-    // motor.setCurrentLimit(30000);
-    /* Your user layer codes begin here*/
-    /*=================================================*/
-    
-    /* Your user layer codes end here*/
-    /*=================================================*/
+    DJIMotor::MotorSet motorset;
+    // TODO: motorset.setCurrentLimit();
     while (true)
     {
         /* Your user layer codes in loop begin here*/
         /*=================================================*/
-        //currentRPM = motor.getRPM();
-       //static Control::PID motorPID(0, 0, 0);
-        
-        // // currentRPM = DJIMotor::getRPM(id);
+        currentRPM = motorset[0].getRPM();
+        static Control::PID motorPID(0, 0, 0);
 
-        // float output = motorPID.update(targetRPM,currentRPM,0.001f);
+        float output = motorPID.update(targetRPM, currentRPM, 0.001f);
+        // Remember when changing dt, change the delay as well
+        // target is from the controller through DR16
 
-        // motor.setOutput(output);
+        motorset[0].setOutput(output);
+        motorset.transmit();  // Transmit the data to the motor // in a package
 
-        // DJIMotor::transmit(1);  // Transmit the data to the motor, whiche
         vTaskDelay(1);  // Delay and block the task for 1ms.
     }
 }
@@ -57,12 +52,6 @@ void userTask(void *)
  */
 
 
-
-
-
-
-
-
 /**
  * @brief Intialize all the drivers and add task to the scheduler
  * @todo  Add your own task in this file
@@ -70,6 +59,7 @@ void userTask(void *)
 void startUserTasks()
 {
     DJIMotor::init();  // Initalize the DJIMotor driver
+    
     DR16::init();      // Intialize the DR16 driver
 
     xTaskCreateStatic(userTask,

@@ -30,7 +30,7 @@ uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower);
 void seperateIntoTwoBytes(const uint16_t &original,
                           uint8_t &higher,
                           uint8_t &lower);
-
+const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20.0f;
 class DJIMotor
 {
@@ -82,6 +82,7 @@ class MotorSet
     MotorSet();
     DJIMotor &operator[](int i) { return motors[i]; }
     void transmit();
+    void setCurrentLimit(float limit); // TODO
 };
 
 /**
