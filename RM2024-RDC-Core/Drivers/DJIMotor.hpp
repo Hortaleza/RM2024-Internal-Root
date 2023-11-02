@@ -75,10 +75,11 @@ class MotorSet
 {
    private:
     DJIMotor motors[8];
-    uint8_t txData1[8] = {};
-    uint8_t txData2[8] = {};
+
 
    public:
+    uint8_t txData1[8] = {};
+    uint8_t txData2[8] = {};
     MotorSet();
     DJIMotor &operator[](int i) { return motors[i]; }
     void transmit();
