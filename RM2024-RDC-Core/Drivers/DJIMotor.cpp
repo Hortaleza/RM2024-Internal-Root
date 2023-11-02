@@ -103,17 +103,26 @@ void DJIMotor::getFilter()
     //                      CAN_FILTERSCALE_16BIT,
     //                      CAN_FILTER_ENABLE,
     //                      0};
-    
-    filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
-    filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
-    filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
-    filter.FilterMaskIdLow = (filter_mask >> (11 - 3)) & 0xFFF8;
+    CAN_FilterTypeDef filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
+                                (filter_id >> (11 - 3)) & 0xFFF8,
+                                ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF,
+                                (filter_mask >> (11 - 3)) & 0xFFF8,
+                                 CAN_FILTER_FIFO0, 
+                                ENABLE, 
+                                CAN_FILTERMODE_IDMASK,
+                                CAN_FILTERSCALE_16BIT,
+                                CAN_FILTER_ENABLE,
+                                0};
+    // filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
+    // filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
+    // filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
+    // filter.FilterMaskIdLow = (filter_mask >> (11 - 3)) & 0xFFF8;
 
-    filter.FilterFIFOAssignment = CAN_FilterFIFO0;
-    filter.FilterNumber = filter_num;
-    filter.FilterMode = CAN_FilterMode_IdMask;
-    filter.FilterScale = CAN_FilterScale_32bit;
-    filter.FilterActivation = ENABLE;
+    // filter.FilterFIFOAssignment = CAN_FilterFIFO0;
+    // filter.FilterNumber = filter_num;
+    // filter.FilterMode = CAN_FilterMode_IdMask;
+    // filter.FilterScale = CAN_FilterScale_32bit;
+    // filter.FilterActivation = ENABLE;
     //CAN_FilterInit(&filter);
 }
 void DJIMotor::update()
