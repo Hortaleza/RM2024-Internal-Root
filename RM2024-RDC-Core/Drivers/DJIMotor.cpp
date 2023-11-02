@@ -8,27 +8,76 @@
 #include "can.h"
 namespace DJIMotor
 {
+uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower)
+{
+    return lower | (higher << 8);
+}
+
+void seperateIntoTwoBytes(const uint16_t &original,
+                          uint8_t &higher,
+                          uint8_t &lower)
+{
+    higher = (original >> 8) & 0b11111111;
+    lower  = original & 0b11111111;
+}
+
 void DJIMotor::init(uint8_t id, uint8_t *t1, uint8_t *t2)
 {
     // Not doing it in the constructor is to avoid dynamic memory distribution
     // Need to set canID in advance
-    this->canID   = id;
-    this->txData1 = t1;
-    this->txData2 = t2;
+    canID   = id;
+    txData1 = t1;
+    txData2 = t2;
     getFilter();
     update();
 }
 
-void DJIMotor::setOutput(float output)
+int DJIMotor::setOutput(uint16_t output)
 {
+    bool normal = true;
+    // Check output range
+    if (output > 16384)
+    {
+        normal = false;
+        output = 16384;
+    }
+    if (output < -16384)
+    {
+        normal = false;
+        output = -16384;
+    }
+
     // Change txData1/2
+    // return -1 if the input is out of range or when any other special cases
+    // happen
+    uint8_t higher, lower;
+    seperateIntoTwoBytes(output, higher, lower);
+    do{
+        if (canID < 5 && canID > 0)
+        {
+            txData1[canID * 2 - 2] = higher;
+            txData1[canID * 2 - 1] = lower;
+            break;
+        }
+        if (canID >= 5 && canID < 9)
+        {
+            txData1[canID * 2 - 10] = higher;
+            txData1[canID * 2 - 9] = lower;
+            break;
+        }
+        normal = false;
+        break;
+    } while (1);
+
+    if (normal)
+        return 0;
+    else return -1;
 }
 int16_t DJIMotor::getRPM()
 {
     update();
     return rpm;
 }
-
 uint8_t DJIMotor::getTemperature()
 {
     update();
@@ -88,13 +137,13 @@ MotorSet::MotorSet()
     // Distribute canID & txData pointer
     for (int i = 0; i < 8; i++)
     {
-        this->motors[i].init(i, txData1, txData2);
+        this->motors[i].init(i + 1, txData1, txData2);
     }
 }
 void MotorSet::transmit()
 {
     uint32_t mailbox;
-
+    // TODO: Transmit twice for 2 data buffers
     CAN_TxHeaderTypeDef txHeader = {
         0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
     HAL_CAN_AddTxMessage(&hcan, &txHeader, txData1, &mailbox);
@@ -102,20 +151,16 @@ void MotorSet::transmit()
     // TODO: Return Status Code
 }
 
+uint16_t currentToOutput(float current)
+{
+    // There may be problems due to the data range (*16383 may be too big (actually should times 16384))
+    return uint32_t(((current) / MAX_CURRENT) * 16383);
+}
+
 // Initialize motor's controller instance
-
-
-/*========================================================*/
-// Your implementation of the function, or even your customized function, should
-// be implemented here
-/*========================================================*/
-/**
- * @todo
- */
 void init()
 {
     HAL_CAN_Start(&hcan);
-    MotorSet motorset;
 }
 
 }
