@@ -8,6 +8,19 @@
 #include "can.h"
 namespace DJIMotor
 {
+uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower)
+{
+    return lower | (higher << 8);
+}
+
+void seperateIntoTwoBytes(const uint16_t &original,
+                          uint8_t &higher,
+                          uint8_t &lower)
+{
+    higher = (original >> 8) & 0b11111111;
+    lower  = original & 0b11111111;
+}
+
 void DJIMotor::init(uint8_t id, uint8_t *t1, uint8_t *t2)
 {
     // Not doing it in the constructor is to avoid dynamic memory distribution

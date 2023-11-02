@@ -26,17 +26,10 @@ namespace DJIMotor
 {
 
 uint16_t currentToOutput(float current);
-uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower)
-{
-    return lower | (higher << 8);
-}
+uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower);
 void seperateIntoTwoBytes(const uint16_t &original,
                           uint8_t &higher,
-                          uint8_t &lower)
-{
-    higher = (original >> 8) & 0b11111111;
-    lower  = original & 0b11111111;
-}
+                          uint8_t &lower);
 
 const float MAX_CURRENT = 20.0f;
 class DJIMotor
