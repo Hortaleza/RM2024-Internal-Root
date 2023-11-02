@@ -25,10 +25,6 @@ const RcData *getRcData() { return &rcData; }
 
 /*================================================================================*/
 
-const int DATASIZE = 18;
-const int RANGE_MAX = 1684;
-const int RANGE_MIN = 364;
-const int RANGE_DEFAULT = 1024;
 
 bool ifContinue = true;
 bool connected  = false;

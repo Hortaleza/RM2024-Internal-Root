@@ -17,6 +17,11 @@
 namespace DR16
 {
 
+const int DATASIZE      = 18;
+const int RANGE_MAX     = 1684;
+const int RANGE_MIN     = 364;
+const int RANGE_DEFAULT = 1024;
+
 /**
  * @brief the DR16 remote controller structure
  * @brief This structure is based on the DR16 user manual

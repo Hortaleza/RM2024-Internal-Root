@@ -22,22 +22,24 @@ StackType_t uxControllerTaskStack[256];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xControllerTaskTCB;
+const int16_t MAX_RPM = 19000;
+double uniformed1     = 0;
 int16_t currentRPM = 0;
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
-float myKp123           = 10;
-int16_t targetRPM = 5000;
 void motorTask(void *)
 {
     DJIMotor::MotorSet motorset;
     // TODO: motorset.setCurrentLimit();
-    static Control::PID motorPID(myKp123, 2, 0);
+    static Control::PID motorPID(10, 2, 0);
+    int16_t targetRPM;
     while (true)
     {
+        targetRPM = int16_t(uniformed1 * MAX_RPM);
         /* Your user layer codes in loop begin here*/
         /*=================================================*/
-        currentRPM   = motorset[0].getRPM();
+        currentRPM = motorset[0].getRPM();
         static volatile float output;
         output = motorPID.update(targetRPM, currentRPM, 0.001f);
         // Remember when changing dt, change the delay as well
@@ -51,7 +53,14 @@ void motorTask(void *)
 
 void controllerTask(void *)
 {
-    
+    const DR16::RcData* RcData = DR16::getRcData();
+
+    while (true)
+    {
+        uniformed1 = 2 * (double(RcData->channel1) - DR16::RANGE_DEFAULT) /
+                    (DR16::RANGE_MAX - DR16::RANGE_MIN);
+        vTaskDelay(1);  // Delay and block the task for 1ms.
+    }
 }
 
 /**
@@ -78,7 +87,7 @@ void startUserTasks()
                       NULL,
                       1,
                       uxControllerTaskStack,
-                      &xControllerTaskTCB)
+                      &xControllerTaskTCB);
     /**
      * @todo Add your own task here
      */
