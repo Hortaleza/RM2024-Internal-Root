@@ -29,20 +29,23 @@ void userTask(void *)
 {
     DJIMotor::MotorSet motorset;
     // TODO: motorset.setCurrentLimit();
+    motorset[0] << 0.1;
+    vTaskDelay(10000);
     while (true)
     {
         /* Your user layer codes in loop begin here*/
         /*=================================================*/
-        currentRPM = motorset[0].getRPM();
-        static Control::PID motorPID(0, 0, 0);
+        
+        // currentRPM = motorset[0].getRPM();
+        // static Control::PID motorPID(0, 0, 0);
 
-        float output = motorPID.update(targetRPM, currentRPM, 0.001f);
-        // Remember when changing dt, change the delay as well
-        // target is from the controller through DR16
+        // float output = motorPID.update(targetRPM, currentRPM, 0.001f);
+        // // Remember when changing dt, change the delay as well
+        // // target is from the controller through DR16
 
-        motorset[0].setOutput(output);
-        motorset.transmit();  // Transmit the data to the motor // in a package
-
+        // motorset[0].setOutput(output);
+        // motorset.transmit();  // Transmit the data to the motor // in a package
+        motorset[0] = 0;
         vTaskDelay(1);  // Delay and block the task for 1ms.
     }
 }
