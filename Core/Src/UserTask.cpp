@@ -24,27 +24,26 @@ int16_t currentRPM = 0;
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
-int myKp123           = 10;
-int16_t targetRPM = 2000;
+float myKp123           = 5;
+int16_t targetRPM = 5000;
 void userTask(void *)
 {
     DJIMotor::MotorSet motorset;
     // TODO: motorset.setCurrentLimit();
-    static Control::PID motorPID(myKp123, 0, 0);
+    static Control::PID motorPID(myKp123, 2, 0);
     while (true)
     {
         /* Your user layer codes in loop begin here*/
         /*=================================================*/
         currentRPM   = motorset[0].getRPM();
         static volatile float output;
-        output = motorPID.update(targetRPM, currentRPM, 0.002f);
+        output = motorPID.update(targetRPM, currentRPM, 0.001f);
         // Remember when changing dt, change the delay as well
         // target is from the controller through DR16
-
         motorset[0].setCurrent(output);
         motorset.transmit();  // Transmit the data to the motor // in a package
         
-        vTaskDelay(2);  // Delay and block the task for 1ms.
+        vTaskDelay(1);  // Delay and block the task for 1ms.
     }
 }
 
@@ -57,9 +56,23 @@ void userTask(void *)
  * @brief Intialize all the drivers and add task to the scheduler
  * @todo  Add your own task in this file
 */
+
+void taskCANRxdataHandler(void *)
+{
+    uint32_t current_notification_value = 0;
+    while (1)  // Task should never return.
+    {
+        // Wait until receive notification (unblocked) from CAN rx interrupt.
+        if (xTaskNotifyWait(0, 0, &current_notification_value, portMAX_DELAY) == pdTRUE)
+        {
+
+        }
+    }
+}
+
 void startUserTasks()
 {
-    DJIMotor::init();  // Initalize the DJIMotor driver
+    // DJIMotor::init();  // Initalize the DJIMotor driver
     
     DR16::init();      // Intialize the DR16 driver
 

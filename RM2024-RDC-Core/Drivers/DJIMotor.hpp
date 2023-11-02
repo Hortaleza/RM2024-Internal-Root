@@ -24,12 +24,6 @@
 #include "can.h"
 namespace DJIMotor
 {
-
-uint16_t currentToOutput(float current);
-uint16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower);
-void seperateIntoTwoBytes(const int16_t &original,
-                          int8_t &higher,
-                          int8_t &lower);
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
 class DJIMotor
@@ -100,7 +94,6 @@ class MotorSet
  * 
  */
 
-void init();
 
 
 /*===========================================================*/

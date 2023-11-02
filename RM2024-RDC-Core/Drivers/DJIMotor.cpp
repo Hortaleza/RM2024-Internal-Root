@@ -8,7 +8,7 @@
 #include "can.h"
 namespace DJIMotor
 {
-inline uint16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower)
+inline int16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower)
 {
     return lower | (higher << 8);
 }
@@ -28,6 +28,7 @@ void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
     canID   = index + 1;
     txData1 = t1;
     txData2 = t2;
+
     getFilter();
     update();
 }
@@ -63,7 +64,7 @@ int DJIMotor::setCurrent(float current)
         setOutput(-MAX_SIZE);
         return -1;
     }
-    setOutput(int32_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
+    setOutput(int16_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
     return 0;
 }
 
@@ -130,13 +131,14 @@ void DJIMotor::update()
     HAL_CAN_ConfigFilter(&hcan, &filter);
     uint8_t rxData[8] = {};
     CAN_RxHeaderTypeDef rxheader;
-    HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, rxData);
+    while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, rxData) != HAL_OK)
+        ;
     // @todo: Distribute the data to the variables
     // CAN is stable so no need to check validity
 
-    position      = concatenateTwoBytes(rxData[0], rxData[1]);
-    rpm           = concatenateTwoBytes(rxData[2], rxData[3]);
-    actualCurrent = concatenateTwoBytes(rxData[4], rxData[5]);
+    position      = rxData[1] | (rxData[0] << 8);
+    rpm           = rxData[3] | (rxData[2] << 8);
+    actualCurrent = rxData[5] | (rxData[4] << 8);
     temperature   = rxData[6];
 }
 
@@ -155,16 +157,17 @@ void MotorSet::transmit()
         0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
     CAN_TxHeaderTypeDef txHeader2 = {
         0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
-    HAL_CAN_AddTxMessage(&hcan, &txHeader1, txData1, &mailbox1);
-    HAL_CAN_AddTxMessage(&hcan, &txHeader2, txData2, &mailbox2);
+    if (HAL_CAN_AddTxMessage(&hcan, &txHeader1, txData1, &mailbox1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_CAN_AddTxMessage(&hcan, &txHeader2, txData2, &mailbox2) != HAL_OK)
+    {
+        Error_Handler();
+    }
     // TODO: Return Status Code
 }
 
-// Initialize motor's controller instance
-void init()
-{
-    HAL_CAN_Start(&hcan);
-}
 
 }
 // namespace DJIMotor
