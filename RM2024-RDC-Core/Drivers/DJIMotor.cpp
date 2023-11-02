@@ -135,10 +135,10 @@ void DJIMotor::update()
     // @todo: Distribute the data to the variables
     // CAN is stable so no need to check validity
 
-    rpm           = rxData[2] << 8 | rxData[3];
-    position      = 0;  // TO BE FINISHED
-    temperature   = 0;  // TO BE FINISHED
-    actualCurrent = 0;  // TO BE FINISHED
+    position = concatenateTwoBytes(rxData[0], rxData[1]);
+    rpm  = concatenateTwoBytes(rxData[2], rxData[3]);
+    actualCurrent = concatenateTwoBytes(rxData[4], rxData[5]);
+    temperature   = rxData[6];
 }
 
 MotorSet::MotorSet()
