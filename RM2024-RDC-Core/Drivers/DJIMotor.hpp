@@ -41,13 +41,14 @@ class DJIMotor
     
     void init(uint8_t canID, uint8_t *txData1, uint8_t *txData2);
 
-    int setOutput(uint16_t output);
+    void setOutput(uint16_t output);
+    int setCurrent(float current);
     int16_t getRPM();
     uint8_t getTemperature();
     int16_t getCurrent();
-    int operator=(uint16_t output) { return setOutput(output); }
+    void operator=(uint16_t output) { setOutput(output); }
     int operator<<(float current) {
-        return setOutput(currentToOutput(currentToOutput(current)));
+        return setCurrent(current);
     }
 
    private:

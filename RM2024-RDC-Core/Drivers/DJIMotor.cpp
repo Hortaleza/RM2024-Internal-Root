@@ -32,62 +32,59 @@ void DJIMotor::init(uint8_t id, uint8_t *t1, uint8_t *t2)
     update();
 }
 
-int DJIMotor::setOutput(uint16_t output)
+void DJIMotor::setOutput(uint16_t output)
 {
-    bool normal = true;
-    // Check output range
-    if (output > 16384)
-    {
-        normal = false;
-        output = 16384;
-    }
-    if (output < -16384)
-    {
-        normal = false;
-        output = -16384;
-    }
-
-    // Change txData1/2
-    // return -1 if the input is out of range or when any other special cases
-    // happen
     uint8_t higher, lower;
     seperateIntoTwoBytes(output, higher, lower);
-    do{
-        if (canID < 5 && canID > 0)
-        {
-            txData1[canID * 2 - 2] = higher;
-            txData1[canID * 2 - 1] = lower;
-            break;
-        }
-        if (canID >= 5 && canID < 9)
-        {
-            txData1[canID * 2 - 10] = higher;
-            txData1[canID * 2 - 9] = lower;
-            break;
-        }
-        normal = false;
-        break;
-    } while (1);
-
-    if (normal)
-        return 0;
-    else return -1;
+    if (canID < 5 && canID > 0)
+    {
+        txData1[canID * 2 - 2] = higher;
+        txData1[canID * 2 - 1] = lower;
+        return;
+    }
+    if (canID >= 5 && canID < 9)
+    {
+        txData1[canID * 2 - 10] = higher;
+        txData1[canID * 2 - 9]  = lower;
+        return;
+    }
+    // Do nothing if nothing happens
 }
+
+int DJIMotor::setCurrent(float current)
+{
+    if (current > MAX_CURRENT - 0.001)
+    {
+        setOutput(MAX_SIZE);
+        return -1;
+    }
+    if (current < -MAX_CURRENT + 0.001)
+    {
+        setOutput(-MAX_SIZE);
+        return -1;
+    }
+    setOutput(uint32_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
+    return 0;
+}
+
 int16_t DJIMotor::getRPM()
 {
     update();
     return rpm;
 }
+
 uint8_t DJIMotor::getTemperature()
 {
     update();
     return temperature;
 }
+
 int16_t DJIMotor::getCurrent()
 {
     update();
     return actualCurrent;
 }
+
 void DJIMotor::getFilter()
 {
     // TODO: Discuss if this function is necessary
@@ -103,6 +100,7 @@ void DJIMotor::getFilter()
                          CAN_FILTER_ENABLE,
                          0};
 }
+
 void DJIMotor::update()
 {
     // Get information from CAN
@@ -136,12 +134,6 @@ void MotorSet::transmit()
     HAL_CAN_AddTxMessage(&hcan, &txHeader, txData1, &mailbox);
     HAL_CAN_AddTxMessage(&hcan, &txHeader, txData2, &mailbox);
     // TODO: Return Status Code
-}
-
-uint16_t currentToOutput(float current)
-{
-    // There may be problems due to the data range (*16383 may be too big (actually should times 16384))
-    return uint32_t(((current) / MAX_CURRENT) * 16383);
 }
 
 // Initialize motor's controller instance
