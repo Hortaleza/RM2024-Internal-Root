@@ -8,33 +8,33 @@
 #include "can.h"
 namespace DJIMotor
 {
-uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower)
+inline uint16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower)
 {
     return lower | (higher << 8);
 }
 
-void seperateIntoTwoBytes(const uint16_t &original,
-                          uint8_t &higher,
-                          uint8_t &lower)
+void seperateIntoTwoBytes(const int16_t &original,
+                          int8_t &higher,
+                          int8_t &lower)
 {
     higher = (original >> 8) & 0b11111111;
     lower  = original & 0b11111111;
 }
 
-void DJIMotor::init(uint8_t id, uint8_t *t1, uint8_t *t2)
+void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
 {
     // Not doing it in the constructor is to avoid dynamic memory distribution
     // Need to set canID in advance
-    canID   = id;
+    canID   = index + 1;
     txData1 = t1;
     txData2 = t2;
     getFilter();
     update();
 }
 
-void DJIMotor::setOutput(uint16_t output)
+void DJIMotor::setOutput(int16_t output)
 {
-    uint8_t higher, lower;
+    int8_t higher, lower;
     seperateIntoTwoBytes(output, higher, lower);
     if (canID < 5 && canID > 0)
     {
@@ -53,17 +53,17 @@ void DJIMotor::setOutput(uint16_t output)
 
 int DJIMotor::setCurrent(float current)
 {
-    if (current > MAX_CURRENT - 0.001)
+    if (current > MAX_CURRENT - 1)
     {
         setOutput(MAX_SIZE);
         return -1;
     }
-    if (current < -MAX_CURRENT + 0.001)
+    if (current < -MAX_CURRENT + 1)
     {
         setOutput(-MAX_SIZE);
         return -1;
     }
-    setOutput(uint32_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
+    setOutput(int32_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
     return 0;
 }
 

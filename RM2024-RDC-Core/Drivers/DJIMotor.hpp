@@ -26,12 +26,12 @@ namespace DJIMotor
 {
 
 uint16_t currentToOutput(float current);
-uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower);
-void seperateIntoTwoBytes(const uint16_t &original,
-                          uint8_t &higher,
-                          uint8_t &lower);
+uint16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower);
+void seperateIntoTwoBytes(const int16_t &original,
+                          int8_t &higher,
+                          int8_t &lower);
 const uint16_t MAX_SIZE = 16384;
-const float MAX_CURRENT = 20.0f;
+const float MAX_CURRENT = 20000.0f;
 class DJIMotor
 {
    public:
@@ -41,12 +41,12 @@ class DJIMotor
     
     void init(uint8_t canID, uint8_t *txData1, uint8_t *txData2);
 
-    void setOutput(uint16_t output);
+    void setOutput(int16_t output);
     int setCurrent(float current);
     int16_t getRPM();
     uint8_t getTemperature();
     int16_t getCurrent();
-    void operator=(uint16_t output) { setOutput(output); }
+    void operator=(int16_t output) { setOutput(output); }
     int operator<<(float current) {
         return setCurrent(current);
     }

@@ -21,37 +21,30 @@ StackType_t uxPIDTaskStack[256];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 int16_t currentRPM = 0;
-uint8_t listenData1 = 0;
-uint8_t listenData2 = 0;
-
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
-int16_t targetRPM = 3;
+int myKp123           = 10;
+int16_t targetRPM = 2000;
 void userTask(void *)
 {
     DJIMotor::MotorSet motorset;
     // TODO: motorset.setCurrentLimit();
-    motorset[0].setOutput(500);
-    motorset.transmit();
+    static Control::PID motorPID(myKp123, 0, 0);
     while (true)
     {
         /* Your user layer codes in loop begin here*/
         /*=================================================*/
-        
-        currentRPM = motorset[0].getRPM();
-        listenData1 = motorset.txData1[0];
-        listenData2 = motorset.txData2[1];
-        // static Control::PID motorPID(0, 0, 0);
+        currentRPM   = motorset[0].getRPM();
+        static volatile float output;
+        output = motorPID.update(targetRPM, currentRPM, 0.002f);
+        // Remember when changing dt, change the delay as well
+        // target is from the controller through DR16
 
-        // float output = motorPID.update(targetRPM, currentRPM, 0.001f);
-        // // Remember when changing dt, change the delay as well
-        // // target is from the controller through DR16
-
-        // motorset[0].setOutput(output);
-        // motorset.transmit();  // Transmit the data to the motor // in a package
+        motorset[0].setCurrent(output);
+        motorset.transmit();  // Transmit the data to the motor // in a package
         
-        vTaskDelay(1);  // Delay and block the task for 1ms.
+        vTaskDelay(2);  // Delay and block the task for 1ms.
     }
 }
 
