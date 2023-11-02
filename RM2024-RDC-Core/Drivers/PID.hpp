@@ -64,10 +64,10 @@ class PID
 
     float output = 0;  // The current output of the PID
 
-    float maxoutput;
-    float minoutput;
+    float maxoutput = 16384;
+    float minoutput = -16384;
 
-    float a = 0.8;
+    float a = 0.9;
     float previousfilter = 0;
     float currentfilter = 0;
 

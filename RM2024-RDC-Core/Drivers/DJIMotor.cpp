@@ -8,33 +8,33 @@
 #include "can.h"
 namespace DJIMotor
 {
-uint16_t concatenateTwoBytes(const uint8_t &higher, const uint8_t &lower)
+inline uint16_t concatenateTwoBytes(const int8_t &higher, const int8_t &lower)
 {
     return lower | (higher << 8);
 }
 
-void seperateIntoTwoBytes(const uint16_t &original,
-                          uint8_t &higher,
-                          uint8_t &lower)
+void seperateIntoTwoBytes(const int16_t &original,
+                          int8_t &higher,
+                          int8_t &lower)
 {
     higher = (original >> 8) & 0b11111111;
     lower  = original & 0b11111111;
 }
 
-void DJIMotor::init(uint8_t id, uint8_t *t1, uint8_t *t2)
+void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
 {
     // Not doing it in the constructor is to avoid dynamic memory distribution
     // Need to set canID in advance
-    canID   = id;
+    canID   = index + 1;
     txData1 = t1;
     txData2 = t2;
     getFilter();
     update();
 }
 
-void DJIMotor::setOutput(uint16_t output)
+void DJIMotor::setOutput(int16_t output)
 {
-    uint8_t higher, lower;
+    int8_t higher, lower;
     seperateIntoTwoBytes(output, higher, lower);
     if (canID < 5 && canID > 0)
     {
@@ -44,26 +44,26 @@ void DJIMotor::setOutput(uint16_t output)
     }
     if (canID >= 5 && canID < 9)
     {
-        txData1[canID * 2 - 10] = higher;
-        txData1[canID * 2 - 9]  = lower;
+        txData2[canID * 2 - 10] = higher;
+        txData2[canID * 2 - 9]  = lower;
         return;
     }
-    // Do nothing if nothing happens
+    // Do nothing if no cases fit
 }
 
 int DJIMotor::setCurrent(float current)
 {
-    if (current > MAX_CURRENT - 0.001)
+    if (current > MAX_CURRENT - 1)
     {
         setOutput(MAX_SIZE);
         return -1;
     }
-    if (current < -MAX_CURRENT + 0.001)
+    if (current < -MAX_CURRENT + 1)
     {
         setOutput(-MAX_SIZE);
         return -1;
     }
-    setOutput(uint32_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
+    setOutput(int32_t(((current) / MAX_CURRENT) * (MAX_SIZE - 1)));
     return 0;
 }
 
@@ -100,7 +100,7 @@ void DJIMotor::getFilter()
     //                      CAN_FILTERSCALE_16BIT,
     //                      CAN_FILTER_ENABLE,
     //                      0};
-    CAN_FilterTypeDef filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
+    CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
                                 (filter_id >> (11 - 3)) & 0xFFF8,
                                 ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF,
                                 (filter_mask >> (11 - 3)) & 0xFFF8,
@@ -110,6 +110,7 @@ void DJIMotor::getFilter()
                                 CAN_FILTERSCALE_16BIT,
                                 CAN_FILTER_ENABLE,
                                 0};
+    filter = local_filter;
     // filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
     // filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
     // filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
@@ -133,8 +134,8 @@ void DJIMotor::update()
     // @todo: Distribute the data to the variables
     // CAN is stable so no need to check validity
 
-    position = concatenateTwoBytes(rxData[0], rxData[1]);
-    rpm  = concatenateTwoBytes(rxData[2], rxData[3]);
+    position      = concatenateTwoBytes(rxData[0], rxData[1]);
+    rpm           = concatenateTwoBytes(rxData[2], rxData[3]);
     actualCurrent = concatenateTwoBytes(rxData[4], rxData[5]);
     temperature   = rxData[6];
 }
@@ -149,12 +150,13 @@ MotorSet::MotorSet()
 }
 void MotorSet::transmit()
 {
-    uint32_t mailbox;
-    // TODO: Transmit twice for 2 data buffers
-    CAN_TxHeaderTypeDef txHeader = {
+    uint32_t mailbox1, mailbox2;
+    CAN_TxHeaderTypeDef txHeader1 = {
+        0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
+    CAN_TxHeaderTypeDef txHeader2 = {
         0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
-    HAL_CAN_AddTxMessage(&hcan, &txHeader, txData1, &mailbox);
-    HAL_CAN_AddTxMessage(&hcan, &txHeader, txData2, &mailbox);
+    HAL_CAN_AddTxMessage(&hcan, &txHeader1, txData1, &mailbox1);
+    HAL_CAN_AddTxMessage(&hcan, &txHeader2, txData2, &mailbox2);
     // TODO: Return Status Code
 }
 
