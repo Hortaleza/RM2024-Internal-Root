@@ -16,6 +16,19 @@ void seperateIntoTwoBytes(const int16_t &original,
     lower  = original & 0b11111111;
 }
 
+void ErrorCallback(CAN_HandleTypeDef* hcan)
+{
+    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+    
+}
+
+void rxCallback(CAN_HandleTypeDef* hcan)
+{
+
+
+    HAL_CAN_GetRxMessage()
+}
+
 void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
 {
     // Not doing it in the constructor is to avoid dynamic memory distribution
@@ -26,6 +39,10 @@ void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
 
     getFilter();
     update();
+    // Register Callback
+    HAL_CAN_RegisterCallback(
+        &hcan, HAL_CAN_TX_MAILBOX0_COMPLETE_CB_ID, rxCallback);
+    HAL_CAN_RegisterCallback(&hcan, )
 }
 
 void DJIMotor::setOutput(int16_t output)
@@ -81,21 +98,22 @@ int16_t DJIMotor::getCurrent()
     return actualCurrent;
 }
 
+
 void DJIMotor::getFilter()
 {
     // TODO: Discuss if this function is necessary
     uint32_t filter_id = 0x200 + canID;
     uint32_t filter_mask = 0x7FF;
-    // filter            = {0,
-    //                      filterID,
-    //                      0,
-    //                      0,
-    //                      CAN_FILTER_FIFO0,
-    //                      ENABLE,
-    //                      CAN_FILTERMODE_IDMASK,
-    //                      CAN_FILTERSCALE_16BIT,
-    //                      CAN_FILTER_ENABLE,
-    //                      0};
+    // CAN_FilterTypeDef local_filter = {0,
+    //                                   filter_id << 5,
+    //                                   0,
+    //                                   0,
+    //                                   CAN_FILTER_FIFO0,
+    //                                   0,
+    //                                   CAN_FILTERMODE_IDLIST,
+    //                                   CAN_FILTERSCALE_16BIT,
+    //                                   CAN_FILTER_ENABLE,
+    //                                   0};
     CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
                                 (filter_id >> (11 - 3)) & 0xFFF8,
                                 ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF,
@@ -123,9 +141,9 @@ void DJIMotor::getFilter()
 void DJIMotor::update()
 {
     // Get information from CAN
-    HAL_CAN_ConfigFilter(&hcan, &filter);
     uint8_t rxData[8] = {};
     CAN_RxHeaderTypeDef rxheader;
+    HAL_CAN_ConfigFilter(&hcan, &filter);
     while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, rxData) != HAL_OK)
         ;
     // @todo: Distribute the data to the variables
@@ -139,6 +157,7 @@ void DJIMotor::update()
 
 MotorSet::MotorSet()
 {
+    HAL_CAN_Start(&hcan);
     // Distribute canID & txData pointer
     for (int i = 0; i < 8; i++)
     {

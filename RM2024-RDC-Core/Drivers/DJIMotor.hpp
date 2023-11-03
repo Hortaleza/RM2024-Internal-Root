@@ -26,14 +26,20 @@ namespace DJIMotor
 {
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
+
+void rxCallback(CAN_HandleTypeDef *hcan);
+void ErrorCallback(CAN_HandleTypeDef hcan);
+
 class DJIMotor
 {
    public:
     uint8_t canID;          // NOTE THAT canID = index + 1 !!!!!!!!
+    uint8_t rxData;
     uint8_t *txData1;
     uint8_t *txData2;
     
-    void init(uint8_t canID, uint8_t *txData1, uint8_t *txData2);
+    void init(uint8_t index, uint8_t *txData1, uint8_t *txData2);
+    
 
     void setOutput(int16_t output);
     int setCurrent(float current);
@@ -69,7 +75,6 @@ class MotorSet
 {
    private:
     DJIMotor motors[8];
-
 
    public:
     uint8_t txData1[8] = {};
@@ -111,9 +116,7 @@ accumulated position(orientation) of the motor
  *
 ============================================================*/
 
-
-
-
+MotorSet motorset;
 
 /*===========================================================*/
 }  // namespace DJIMotor
