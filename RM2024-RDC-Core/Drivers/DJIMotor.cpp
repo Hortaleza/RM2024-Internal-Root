@@ -16,17 +16,30 @@ void seperateIntoTwoBytes(const int16_t &original,
     lower  = original & 0b11111111;
 }
 
-void ErrorCallback(CAN_HandleTypeDef* hcan)
+void ErrorCallback(CAN_HandleTypeDef* _hcan)
 {
-    HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
-    
+    HAL_CAN_ActivateNotification(_hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+    for (int i = 0; i < 8; i++)
+    {
+        CAN_RxHeaderTypeDef rxheader;
+
+        HAL_CAN_ConfigFilter(_hcan, &motorset[i].filter);
+        HAL_CAN_GetRxMessage(
+            _hcan, CAN_RX_FIFO0, &rxheader, motorset[i].rxData);
+    }
 }
 
-void rxCallback(CAN_HandleTypeDef* hcan)
+void rxCallback(CAN_HandleTypeDef* _hcan)
 {
+    for (int i = 0; i < 8; i++)
+    {
+        CAN_RxHeaderTypeDef rxheader;
 
-
-    HAL_CAN_GetRxMessage()
+        HAL_CAN_ConfigFilter(_hcan, &motorset[i].filter);
+        HAL_CAN_GetRxMessage(
+            _hcan, CAN_RX_FIFO0, &rxheader, motorset[i].rxData);
+    }
+        
 }
 
 void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
@@ -40,9 +53,6 @@ void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
     getFilter();
     update();
     // Register Callback
-    HAL_CAN_RegisterCallback(
-        &hcan, HAL_CAN_TX_MAILBOX0_COMPLETE_CB_ID, rxCallback);
-    HAL_CAN_RegisterCallback(&hcan, )
 }
 
 void DJIMotor::setOutput(int16_t output)
@@ -104,26 +114,26 @@ void DJIMotor::getFilter()
     // TODO: Discuss if this function is necessary
     uint32_t filter_id = 0x200 + canID;
     uint32_t filter_mask = 0x7FF;
-    // CAN_FilterTypeDef local_filter = {0,
-    //                                   filter_id << 5,
-    //                                   0,
-    //                                   0,
-    //                                   CAN_FILTER_FIFO0,
-    //                                   0,
-    //                                   CAN_FILTERMODE_IDLIST,
-    //                                   CAN_FILTERSCALE_16BIT,
-    //                                   CAN_FILTER_ENABLE,
-    //                                   0};
-    CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
-                                (filter_id >> (11 - 3)) & 0xFFF8,
-                                ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF,
-                                (filter_mask >> (11 - 3)) & 0xFFF8,
-                                 CAN_FILTER_FIFO0, 
-                                ENABLE, 
-                                CAN_FILTERMODE_IDMASK,
-                                CAN_FILTERSCALE_16BIT,
-                                CAN_FILTER_ENABLE,
-                                0};
+    CAN_FilterTypeDef local_filter = {0,
+                                      filter_id << 5,
+                                      0,
+                                      0,
+                                      CAN_FILTER_FIFO0,
+                                      0,
+                                      CAN_FILTERMODE_IDLIST,
+                                      CAN_FILTERSCALE_16BIT,
+                                      CAN_FILTER_ENABLE,
+                                      0};
+    // CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
+    //                             (filter_id >> (11 - 3)) & 0xFFF8,
+    //                             ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF,
+    //                             (filter_mask >> (11 - 3)) & 0xFFF8,
+    //                              CAN_FILTER_FIFO0, 
+    //                             ENABLE, 
+    //                             CAN_FILTERMODE_IDMASK,
+    //                             CAN_FILTERSCALE_16BIT,
+    //                             CAN_FILTER_ENABLE,
+    //                             0};
     filter = local_filter;
     // filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
     // filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
@@ -140,15 +150,6 @@ void DJIMotor::getFilter()
 
 void DJIMotor::update()
 {
-    // Get information from CAN
-    uint8_t rxData[8] = {};
-    CAN_RxHeaderTypeDef rxheader;
-    HAL_CAN_ConfigFilter(&hcan, &filter);
-    while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, rxData) != HAL_OK)
-        ;
-    // @todo: Distribute the data to the variables
-    // CAN is stable so no need to check validity
-
     position      = rxData[1] | (rxData[0] << 8);
     rpm           = rxData[3] | (rxData[2] << 8);
     actualCurrent = rxData[5] | (rxData[4] << 8);
@@ -162,6 +163,17 @@ MotorSet::MotorSet()
     for (int i = 0; i < 8; i++)
     {
         this->motors[i].init(i + 1, txData1, txData2);
+    }
+    HAL_CAN_RegisterCallback(
+        &hcan, HAL_CAN_TX_MAILBOX0_COMPLETE_CB_ID, rxCallback);
+    HAL_CAN_RegisterCallback(&hcan, HAL_CAN_ERROR_CB_ID, ErrorCallback);
+    for (int i = 0; i < 8; i++)
+    {
+        CAN_RxHeaderTypeDef rxheader;
+
+        HAL_CAN_ConfigFilter(&hcan, &motorset[i].filter);
+        HAL_CAN_GetRxMessage(
+            &hcan, CAN_RX_FIFO0, &rxheader, motorset[i].rxData);
     }
 }
 void MotorSet::transmit()

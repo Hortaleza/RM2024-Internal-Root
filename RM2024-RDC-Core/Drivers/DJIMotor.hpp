@@ -34,10 +34,11 @@ class DJIMotor
 {
    public:
     uint8_t canID;          // NOTE THAT canID = index + 1 !!!!!!!!
-    uint8_t rxData;
+    uint8_t rxData[8] = {};
     uint8_t *txData1;
     uint8_t *txData2;
-    
+    CAN_FilterTypeDef filter;
+
     void init(uint8_t index, uint8_t *txData1, uint8_t *txData2);
     
 
@@ -52,7 +53,6 @@ class DJIMotor
     }
 
    private:
-    CAN_FilterTypeDef filter;
     float position;
     int16_t rpm;
     int16_t actualCurrent;
