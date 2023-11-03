@@ -23,8 +23,9 @@ StackType_t uxControllerTaskStack[256];
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xControllerTaskTCB;
 const int16_t MAX_RPM = 19000;
-double uniformed1     = 0;
-int16_t currentRPM = 0;
+double uniformed[8]   = {};
+int16_t currentRPM[8] = {};
+int16_t targetRPM[8]  = {};
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
@@ -32,20 +33,20 @@ void motorTask(void *)
 {
     DJIMotor::MotorSet motorset;
     // TODO: motorset.setCurrentLimit();
-    static Control::PID motorPID(10, 2, 0);
-    int16_t targetRPM;
+    static Control::PID motorPID0(10, 2, 0);
+    static Control::PID motorPID1(10, 2, 0);
     while (true)
     {
-        targetRPM = int16_t(uniformed1 * MAX_RPM);
-        /* Your user layer codes in loop begin here*/
-        /*=================================================*/
-        currentRPM = motorset[0].getRPM();
-        static volatile float output;
-        output = motorPID.update(targetRPM, currentRPM, 0.001f);
-        // Remember when changing dt, change the delay as well
-        // target is from the controller through DR16
-        motorset[0].setCurrent(output);
-        motorset.transmit();  // Transmit the data to the motor // in a package
+        targetRPM[0]  = (int16_t)(uniformed[0] * MAX_RPM);
+        currentRPM[0] = motorset[0].getRPM();
+        motorset[0].setCurrent(
+            motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));
+        targetRPM[1]  = (int16_t)(uniformed[1] * MAX_RPM);
+        currentRPM[1] = motorset[1].getRPM();
+        motorset[1].setCurrent(
+            motorPID1.update(targetRPM[1], currentRPM[1], 0.001f));
+
+        motorset.transmit();  // Transmit the data to the motor in a package
         
         vTaskDelay(1);  // Delay and block the task for 1ms.
     }
@@ -57,8 +58,10 @@ void controllerTask(void *)
 
     while (true)
     {
-        uniformed1 = 2 * (double(RcData->channel1) - DR16::RANGE_DEFAULT) /
+        uniformed[0] = 2 * (double(RcData->channel1) - DR16::RANGE_DEFAULT) /
                     (DR16::RANGE_MAX - DR16::RANGE_MIN);
+        uniformed[1] = 2 * (double(RcData->channel3) - DR16::RANGE_DEFAULT) /
+                       (DR16::RANGE_MAX - DR16::RANGE_MIN);
         vTaskDelay(1);  // Delay and block the task for 1ms.
     }
 }
