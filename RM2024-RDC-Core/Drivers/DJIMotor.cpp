@@ -15,6 +15,31 @@
 namespace DJIMotor
 {
 
+uint32_t mailbox0, mailbox1;
+CAN_TxHeaderTypeDef txHeader0 = {
+    0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
+CAN_TxHeaderTypeDef txHeader1 = {
+    0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
+
+uint8_t txData0[8] = {};
+uint8_t txData1[8] = {};
+
+CAN_FilterTypeDef rxFilter = {0x200,
+                              0,
+                              0x3f0,
+                              0,
+                              CAN_FILTER_FIFO0,
+                              ENABLE,
+                              CAN_FILTERMODE_IDMASK,
+                              CAN_FILTERSCALE_16BIT,
+                              CAN_FILTER_ENABLE,
+                              0};
+
+CAN_RxHeaderTypeDef rxHeader;
+uint8_t rxData[8] = {};
+
+DJIMotor Motors[8];
+
 void DJIMotor::update()
 {
     // Update the data from rxData WITHOUT any check!

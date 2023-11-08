@@ -67,25 +67,22 @@ void controllerTask(void *)
 
 void startUserTasks()
 {
-    DJIMotor::init();  // Initalize the DJIMotor driver
+    // DJIMotor::init();  // Initalize the DJIMotor driver
     
-    DR16::init();      // Intialize the DR16 driver
+    // DR16::init();      // Intialize the DR16 driver
 
-    xTaskCreateStatic(motorTask,
-                      "motorTask",
-                      256,
-                      NULL,
-                      1,
-                      uxPIDTaskStack,
-                      &xPIDTaskTCB);  // Add the main task into the scheduler
-    xTaskCreateStatic(controllerTask,
-                      "controllerTask",
-                      256,
-                      NULL,
-                      1,
-                      uxControllerTaskStack,
-                      &xControllerTaskTCB);
-    /**
-     * @todo Add your own task here
-     */
+    // xTaskCreateStatic(motorTask,
+    //                   "motorTask",
+    //                   256,
+    //                   NULL,
+    //                   1,
+    //                   uxPIDTaskStack,
+    //                   &xPIDTaskTCB);  // Add the main task into the scheduler
+    // xTaskCreateStatic(controllerTask,
+    //                   "controllerTask",
+    //                   256,
+    //                   NULL,
+    //                   1,
+    //                   uxControllerTaskStack,
+    //                   &xControllerTaskTCB);
 }
