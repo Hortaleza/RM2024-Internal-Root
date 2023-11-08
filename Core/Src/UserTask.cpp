@@ -31,38 +31,33 @@ int16_t targetRPM[8]  = {};
  */
 void motorTask(void *)
 {
-    // TODO: motorset.setCurrentLimit();
-    static Control::PID motorPID0(10, 1, 0);
-    // static Control::PID motorPID1(10, 1, 0);
-    while (true)
-    {
-        targetRPM[0]  = (int16_t)(uniformed[0] * MAX_RPM);
-        currentRPM[0] = DJIMotor::motorset[0].getRPM();
-        DJIMotor::motorset[0].setCurrent(
-            motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));
-        // targetRPM[1]  = (int16_t)(uniformed[1] * MAX_RPM);
-        // currentRPM[1] = DJIMotor::motorset[1].getRPM();
-        // DJIMotor::motorset[1].setCurrent(
-        //     motorPID1.update(targetRPM[1], currentRPM[1], 0.001f));
+    // // TODO: motorset.setCurrentLimit();
+    // static Control::PID motorPID0(10, 1, 0);
+    // // static Control::PID motorPID1(10, 1, 0);
+    // while (true)
+    // {
+    //     targetRPM[0]  = (int16_t)(uniformed[0] * MAX_RPM);
+    //     currentRPM[0] = DJIMotor::Motors[0].rpm; // Update ?
+    //     DJIMotor::Motors[0].setCurrent(
+    //         motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));
+    //     DJIMotor::transmit();  // Transmit the data to the motor in a package
 
-        DJIMotor::motorset.transmit();  // Transmit the data to the motor in a package
-
-        vTaskDelay(1);  // Delay and block the task for 1ms.
-    }
+    //     vTaskDelay(1);  // Delay and block the task for 1ms.
+    // }
 }
 
 void controllerTask(void *)
 {
-    const DR16::RcData* RcData = DR16::getRcData();
+    // const DR16::RcData* RcData = DR16::getRcData();
 
-    while (true)
-    {
-        uniformed[0] = 2 * (double(RcData->channel1) - DR16::RANGE_DEFAULT) /
-                    (DR16::RANGE_MAX - DR16::RANGE_MIN);
-        // uniformed[1] = 2 * (double(RcData->channel3) - DR16::RANGE_DEFAULT) /
-        //                (DR16::RANGE_MAX - DR16::RANGE_MIN);
-        vTaskDelay(1);  // Delay and block the task for 1ms.
-    }
+    // while (true)
+    // {
+    //     uniformed[0] = 2 * (double(RcData->channel1) - DR16::RANGE_DEFAULT) /
+    //                 (DR16::RANGE_MAX - DR16::RANGE_MIN);
+    //     // uniformed[1] = 2 * (double(RcData->channel3) - DR16::RANGE_DEFAULT) /
+    //     //                (DR16::RANGE_MAX - DR16::RANGE_MIN);
+    //     vTaskDelay(1);  // Delay and block the task for 1ms.
+    // }
 }
 
 /**
@@ -72,7 +67,7 @@ void controllerTask(void *)
 
 void startUserTasks()
 {
-    // DJIMotor::init();  // Initalize the DJIMotor driver
+    DJIMotor::init();  // Initalize the DJIMotor driver
     
     DR16::init();      // Intialize the DR16 driver
 

@@ -27,85 +27,68 @@ namespace DJIMotor
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
 
-void rxCallback(CAN_HandleTypeDef *hcan);
-void ErrorCallback(CAN_HandleTypeDef hcan);
-
 class DJIMotor
 {
    public:
-    uint8_t canID;          // NOTE THAT canID = index + 1 !!!!!!!!
-    uint8_t rxData[8] = {};
-    uint8_t *txData1;
-    uint8_t *txData2;
-    CAN_FilterTypeDef filter;
-
-    void init(uint8_t index, uint8_t *txData1, uint8_t *txData2);
-    
-
-    void setOutput(int16_t output);
-    int setCurrent(float current);
-    int16_t getRPM();
-    uint8_t getTemperature();
-    int16_t getCurrent();
-    void operator=(int16_t output) { setOutput(output); }
-    int operator<<(float current) {
-        return setCurrent(current);
-    }
-
-   private:
-    float position;
+    uint8_t canID;
+    int16_t rawPosition;
     int16_t rpm;
     int16_t actualCurrent;
-    //  int16_t setCurrent;
-    //  uint16_t currentLimit;
-
     uint8_t temperature;
 
-    //  int32_t rotaryCnt;
-    //  int16_t positionOffset;
+    // TODO: Calculate the accumulated position!
 
-    //  uint32_t disconnectCnt;
-    //  uint32_t receiveCnt;
-    bool connected;
-    void getFilter();
     void update();
+    void setOutput(int16_t output);
+    int setCurrent(float current);
 };
 
-class MotorSet
-{
-   private:
-    DJIMotor motors[8];
+uint32_t mailbox0, mailbox1;
+CAN_TxHeaderTypeDef txHeader0 = {
+    0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
+CAN_TxHeaderTypeDef txHeader1 = {
+    0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
 
-   public:
-    uint8_t txData1[8] = {};
-    uint8_t txData2[8] = {};
-    MotorSet();
-    DJIMotor &operator[](int i) { return motors[i]; }
-    void transmit();
-    void setCurrentLimit(float limit); // TODO
-};
+uint8_t txData0[8] = {};
+uint8_t txData1[8] = {};
 
+CAN_FilterTypeDef rxFilter = {0x200,
+                              0,
+                              0x3f0,
+                              0,
+                              CAN_FILTER_FIFO0,
+                              ENABLE,
+                              CAN_FILTERMODE_IDMASK,
+                              CAN_FILTERSCALE_16BIT,
+                              CAN_FILTER_ENABLE,
+                              0};
+
+CAN_RxHeaderTypeDef rxHeader;
+uint8_t rxData[8] = {};
+
+DJIMotor Motors[8];
+DJIMotor &getMotorByID(uint8_t canID);
+void transmit();
+void init();
 /**
  * @brief A motor's handle. We do not require you to master the cpp class
  * syntax.
  * @brief However, some neccessary OOP thought should be shown in your code.
- * @brief For example, if you have multiple motors, which is going to happen in
- * RDC (You have at least 4 wheels to control)
- * @brief You are able to write a "template" module for all the abstract motors,
- * and instantiate them with different parameters
+ * @brief For example, if you have multiple motors, which is going to happen
+ * in RDC (You have at least 4 wheels to control)
+ * @brief You are able to write a "template" module for all the abstract
+ * motors, and instantiate them with different parameters
  * @brief Instead of copy and paste your codes for four times
  * @brief This is what we really appreiciate in our programming
- * 
- * 
+ *
+ *
  */
-
-
 
 /*===========================================================*/
 /**
  * @brief You can define your customized function here
- * @note  It might not be necessary in your PA3, but it's might be beneficial
-for your RDC development progress
+ * @note  It might not be necessary in your PA3, but it's might be
+beneficial for your RDC development progress
  * @example
  * float get(uint16_t canID);
  *
@@ -115,8 +98,6 @@ accumulated position(orientation) of the motor
  * ..... And more .....
  *
 ============================================================*/
-
-MotorSet motorset;
 
 /*===========================================================*/
 }  // namespace DJIMotor

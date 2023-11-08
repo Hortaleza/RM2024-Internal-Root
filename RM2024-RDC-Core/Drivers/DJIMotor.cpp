@@ -5,70 +5,44 @@
 #ifndef RDC_DJIMotor_MAX_NUM
 #define RDC_DJIMotor_MAX_NUM 8
 #endif
-#include "can.h"
+
+/*
+ * This is actually the driver for C620 controller, not just DJIMotors.
+ * However, changing the name of the file means to modify the CMake file which I am lazy to do.
+ */
+
+
 namespace DJIMotor
 {
-void seperateIntoTwoBytes(const int16_t &original,
-                          int8_t &higher,
-                          int8_t &lower)
+
+void DJIMotor::update()
 {
-    higher = (original >> 8) & 0b11111111;
-    lower  = original & 0b11111111;
-}
-
-void ErrorCallback(CAN_HandleTypeDef* _hcan)
-{
-    HAL_CAN_ActivateNotification(_hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
-    for (int i = 0; i < 8; i++)
-    {
-        CAN_RxHeaderTypeDef rxheader;
-
-        HAL_CAN_ConfigFilter(_hcan, &motorset[i].filter);
-        HAL_CAN_GetRxMessage(
-            _hcan, CAN_RX_FIFO0, &rxheader, motorset[i].rxData);
-    }
-}
-
-void rxCallback(CAN_HandleTypeDef* _hcan)
-{
-    for (int i = 0; i < 8; i++)
-    {
-        CAN_RxHeaderTypeDef rxheader;
-
-        HAL_CAN_ConfigFilter(_hcan, &motorset[i].filter);
-        HAL_CAN_GetRxMessage(
-            _hcan, CAN_RX_FIFO0, &rxheader, motorset[i].rxData);
-    }
-        
-}
-
-void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
-{
-    // Not doing it in the constructor is to avoid dynamic memory distribution
-    // Need to set canID in advance
-    canID   = index + 1;
-    txData1 = t1;
-    txData2 = t2;
-
-    getFilter();
-    update();
-    // Register Callback
+    // Update the data from rxData WITHOUT any check!
+    rawPosition   = rxData[1] | (rxData[0] << 8);
+    rpm           = rxData[3] | (rxData[2] << 8);
+    actualCurrent = rxData[5] | (rxData[4] << 8);
+    temperature   = rxData[6];
 }
 
 void DJIMotor::setOutput(int16_t output)
 {
     int8_t higher, lower;
-    seperateIntoTwoBytes(output, higher, lower);
+
+    // Seperate into 2 bytes
+    higher = (output >> 8) & 0b11111111;
+    lower  = output & 0b11111111;
+
+    // Distribute data according to canID
     if (canID < 5 && canID > 0)
     {
-        txData1[canID * 2 - 2] = higher;
-        txData1[canID * 2 - 1] = lower;
+        txData0[canID * 2 - 2] = higher;
+        txData0[canID * 2 - 1] = lower;
         return;
     }
     if (canID >= 5 && canID < 9)
     {
-        txData2[canID * 2 - 10] = higher;
-        txData2[canID * 2 - 9]  = lower;
+        txData1[canID * 2 - 10] = higher;
+        txData1[canID * 2 - 9]  = lower;
         return;
     }
     // Do nothing if no cases fit
@@ -90,105 +64,51 @@ int DJIMotor::setCurrent(float current)
     return 0;
 }
 
-int16_t DJIMotor::getRPM()
+DJIMotor &getMotorByID(uint8_t canID) { return Motors[canID - 1]; }
+
+// void ErrorCallback(__CAN_HandleTypeDef *hcan)
+// {
+//     // Receive again
+//     HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rxHeader, rxData);
+// }
+
+void rxCallback(__CAN_HandleTypeDef *hcan)
 {
-    update();
-    return rpm;
-}
-
-uint8_t DJIMotor::getTemperature()
-{
-    update();
-    return temperature;
-}
-
-int16_t DJIMotor::getCurrent()
-{
-    update();
-    return actualCurrent;
-}
-
-
-void DJIMotor::getFilter()
-{
-    // TODO: Discuss if this function is necessary
-    uint32_t filter_id = 0x200 + canID;
-    uint32_t filter_mask = 0x7FF;
-    CAN_FilterTypeDef local_filter = {0,
-                                      filter_id << 5,
-                                      0,
-                                      0,
-                                      CAN_FILTER_FIFO0,
-                                      0,
-                                      CAN_FILTERMODE_IDLIST,
-                                      CAN_FILTERSCALE_16BIT,
-                                      CAN_FILTER_ENABLE,
-                                      0};
-    // CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF, 
-    //                             (filter_id >> (11 - 3)) & 0xFFF8,
-    //                             ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF,
-    //                             (filter_mask >> (11 - 3)) & 0xFFF8,
-    //                              CAN_FILTER_FIFO0, 
-    //                             ENABLE, 
-    //                             CAN_FILTERMODE_IDMASK,
-    //                             CAN_FILTERSCALE_16BIT,
-    //                             CAN_FILTER_ENABLE,
-    //                             0};
-    filter = local_filter;
-    // filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
-    // filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
-    // filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
-    // filter.FilterMaskIdLow = (filter_mask >> (11 - 3)) & 0xFFF8;
-
-    // filter.FilterFIFOAssignment = CAN_FilterFIFO0;
-    // filter.FilterNumber = filter_num;
-    // filter.FilterMode = CAN_FilterMode_IdMask;
-    // filter.FilterScale = CAN_FilterScale_32bit;
-    // filter.FilterActivation = ENABLE;
-    //CAN_FilterInit(&filter);
-}
-
-void DJIMotor::update()
-{
-    position      = rxData[1] | (rxData[0] << 8);
-    rpm           = rxData[3] | (rxData[2] << 8);
-    actualCurrent = rxData[5] | (rxData[4] << 8);
-    temperature   = rxData[6];
-}
-
-MotorSet::MotorSet()
-{
-    HAL_CAN_Start(&hcan);
-    // Distribute canID & txData pointer
-    for (int i = 0; i < 8; i++)
+    // Check rxHeader and Update the corresponding motor's information
+    uint8_t receivedCanID = (rxHeader.ExtId >> 5) - 0x200;
+    // If reads the sent message, read again (Don't know if this is useful??
+    if (receivedCanID == 0)
     {
-        this->motors[i].init(i + 1, txData1, txData2);
+        HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rxHeader, rxData);
+        return;
     }
-    HAL_CAN_RegisterCallback(
-        &hcan, HAL_CAN_TX_MAILBOX0_COMPLETE_CB_ID, rxCallback);
-    HAL_CAN_RegisterCallback(&hcan, HAL_CAN_ERROR_CB_ID, ErrorCallback);
-    for (int i = 0; i < 8; i++)
-    {
-        CAN_RxHeaderTypeDef rxheader;
 
-        HAL_CAN_ConfigFilter(&hcan, &motorset[i].filter);
-        HAL_CAN_GetRxMessage(
-            &hcan, CAN_RX_FIFO0, &rxheader, motorset[i].rxData);
-    }
+    // TODO: Check validity of the data
+
+    // Update data
+    getMotorByID(receivedCanID).update();
 }
-void MotorSet::transmit()
+
+void transmit()
 {
-    uint32_t mailbox1, mailbox2;
-    CAN_TxHeaderTypeDef txHeader1 = {
-        0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
-    CAN_TxHeaderTypeDef txHeader2 = {
-        0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
+    HAL_CAN_AddTxMessage(&hcan, &txHeader0, txData0, &mailbox0);
     HAL_CAN_AddTxMessage(&hcan, &txHeader1, txData1, &mailbox1);
-    HAL_CAN_AddTxMessage(&hcan, &txHeader2, txData2, &mailbox2);
-    // TODO: Return Status Code
+}
+
+void init()
+{
+    // Distribute canID
+    for (int i = 0; i < 8; i++) {
+        Motors[i].canID = i + 1;
+    }
+    HAL_CAN_ConfigFilter(&hcan, &rxFilter);
+    HAL_CAN_Start(&hcan);
+    HAL_CAN_RegisterCallback(
+        &hcan, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, rxCallback);
+    HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, rxData);
+    // HAL_CAN_ActivateNotification(&hcan, CAN_IT_ERROR);
 }
 
 
-}
-// namespace DJIMotor
+} // End of namespace DJIMotor
 #endif
