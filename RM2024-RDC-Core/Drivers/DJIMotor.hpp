@@ -44,10 +44,11 @@ class DJIMotor
     int operator<<(float current) {
         return setCurrent(current);
     }
+    float position;
 
    private:
     CAN_FilterTypeDef filter;
-    float position;
+    
     int16_t rpm;
     int16_t actualCurrent;
     //  int16_t setCurrent;

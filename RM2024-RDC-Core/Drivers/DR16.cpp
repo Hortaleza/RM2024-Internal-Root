@@ -60,7 +60,7 @@ void clearMemory() {
  * Put this function in the while loop. This function updates a boolean global variable
  * RC16::connected constantly and call clearMemory when not connected
 */
-void updateConnectionStatus(uint32_t timeLimit) {
+bool getConnectionStatus(uint32_t timeLimit = 100) {
     if (HAL_GetTick() - lastReceiveTick > timeLimit){
         connected = false;
     } else {
@@ -68,6 +68,7 @@ void updateConnectionStatus(uint32_t timeLimit) {
     }
     if (connected == false)
         clearMemory();
+    return connected;
 }
 
 // Error Callback Function

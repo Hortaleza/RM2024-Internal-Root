@@ -59,7 +59,7 @@ extern uint8_t rxBuffer[18];
 /*You can declare your own function here, supposing you would like to desgin
  * a more complicated DR16 module*/
 
-void updateConnectionStatus(uint32_t timeLimit);
+bool getConnectionStatus(uint32_t timeLimit);
 void rxCallback(UART_HandleTypeDef *huart, uint16_t dataSize);
 char *getStatus();
 
