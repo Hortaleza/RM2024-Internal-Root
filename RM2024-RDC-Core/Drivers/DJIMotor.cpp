@@ -100,7 +100,7 @@ DJIMotor &getMotorByID(uint8_t canID) { return Motors[canID - 1]; }
 void rxCallback(__CAN_HandleTypeDef *hcan)
 {
     // Check rxHeader and Update the corresponding motor's information
-    uint8_t receivedCanID = (rxHeader.ExtId >> 5) - 0x200;
+    uint8_t receivedCanID = (rxHeader.StdId >> 5) - 0x200;
     // If reads the sent message, read again (Don't know if this is useful??
     if (receivedCanID == 0)
     {
@@ -128,6 +128,7 @@ void init()
     }
     HAL_CAN_ConfigFilter(&hcan, &rxFilter);
     HAL_CAN_Start(&hcan);
+    HAL_CAN_ActivateNotification(&hcan, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID);
     HAL_CAN_RegisterCallback(
         &hcan, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, rxCallback);
     HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxHeader, rxData);
