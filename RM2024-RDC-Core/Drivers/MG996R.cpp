@@ -95,20 +95,8 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
-    setServoAngle(0);
-    HAL_Delay(1000);
-
-    setServoAngle(90);
-    HAL_Delay(1000);
-
-    setServoAngle(180);
-    HAL_Delay(1000);
-    /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+  setServoAngle(0); //Requires angle
+  HAL_Delay(1000);
 }
 
 void setServoAngle(double angle) {
