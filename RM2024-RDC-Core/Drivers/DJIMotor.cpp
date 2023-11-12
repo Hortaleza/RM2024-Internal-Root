@@ -161,7 +161,33 @@ void MotorSet::transmit()
     // TODO: Return Status Code
 }
 
+void receiveTaskInit()
+{
+    CAN_FilterTypeDef filter = {0x200 << 5,
+                                0,
+                                0,
+                                0,
+                                CAN_FILTER_FIFO0,
+                                ENABLE,
+                                CAN_FILTERMODE_IDMASK,
+                                CAN_FILTERSCALE_32BIT,
+                                CAN_FILTER_ENABLE,
+                                0};
+    HAL_CAN_ConfigFilter(&hcan, &filter);
+}
 
+void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& motorset)
+{
+    while (HAL_CAN_GetRxMessage(
+               &hcan, CAN_RX_FIFO0, rxheader, rxData) != HAL_OK)
+        ;
+    int canID = (*rxheader).StdId - 0x200;
+    if (!(canID > 0 && canID < 9))
+        return;
+    motorset[canID - 1].update();
+}
+
+void init() { receiveTaskInit(); }
 }
 // namespace DJIMotor
 #endif

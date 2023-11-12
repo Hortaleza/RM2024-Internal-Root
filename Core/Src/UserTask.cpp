@@ -18,16 +18,13 @@
 
 /*Allocate the stack for our PID task*/
 StackType_t uxPIDTaskStack[256];
-StackType_t uxControllerTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
 
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
-StaticTask_t xControllerTaskTCB;
 StaticTask_t xReceiveTaskTCB;
 
 const int16_t MAX_RPM = 19000;
-double uniformed[8]   = {};
 int16_t currentRPM[8] = {};
 int16_t targetRPM[8]  = {};
 bool connected        = 0;
@@ -38,7 +35,7 @@ DJIMotor::MotorSet motorset;
 void motorTask(void *)
 {
     // TODO: motorset.setCurrentLimit();
-    static Control::PID motorPID1(10, 2, 0.02);
+    Control::PID motorPID1(10, 2, 0.02);
     // static Control::PID motorPID1(10, 2, 0);
     while (true)
     {
@@ -46,14 +43,16 @@ void motorTask(void *)
         // currentRPM[0] = motorset[0].getRPM();
         // motorset[0].setCurrent(
         //     motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));
+        int canid         = 2;
+        int index         = canid - 1;
 
-        targetRPM[0]  = 500;
+        connected = DR16::getConnectionStatus(100);
 
-        // targetRPM[1]  = (connected) ? (int16_t)(uniformed[1] * MAX_RPM) : 0;
-        currentRPM[0] = motorset[0].getRPM();
-        for (int i = 0; i < 8; i++)
-            motorset[i].setCurrent(
-                motorPID1.update(targetRPM[0], currentRPM[0], 0.001f));
+        // targetRPM[1]  = (connected) ? (int16_t)(DR16::uniformed.channel0 * MAX_RPM) : 0;
+        currentRPM[index] = motorset[index].getRPM();
+
+        motorset[index].setCurrent(
+            motorPID1.update(targetRPM[index], currentRPM[index], 0.001f));
 
         motorset.transmit();  // Transmit the data to the motor in a package
         
@@ -61,45 +60,15 @@ void motorTask(void *)
     }
 }
 
-void controllerTask(void *)
-{
-    const DR16::RcData* RcData = DR16::getRcData();
-
-    while (true)
-    {
-        connected    = DR16::getConnectionStatus(100);
-        uniformed[0] = 2 * (double(RcData->channel1) - DR16::RANGE_DEFAULT) /
-                    (DR16::RANGE_MAX - DR16::RANGE_MIN);
-        // uniformed[1] = 2 * (double(RcData->channel3) - DR16::RANGE_DEFAULT) /
-        //                (DR16::RANGE_MAX - DR16::RANGE_MIN);
-        vTaskDelay(1);  // Delay and block the task for 1ms.
-    }
-}
 
 void receiveTask(void *)
 {
-    CAN_FilterTypeDef filter = {0x200 << 5,
-                                      0,
-                                      0,
-                                      0,
-                                      CAN_FILTER_FIFO0,
-                                      ENABLE,
-                                      CAN_FILTERMODE_IDMASK,
-                                      CAN_FILTERSCALE_32BIT,
-                                      CAN_FILTER_ENABLE,
-                                      0};
-    HAL_CAN_ConfigFilter(&hcan, &filter);
+    DJIMotor::receiveTaskInit();
     CAN_RxHeaderTypeDef rxheader;
 
     while (true)
     {
-        while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, DJIMotor::rxData) !=
-               HAL_OK)
-            ;
-        int canID = rxheader.StdId - 0x200;
-        if (!(canID > 0 && canID < 9))
-            continue;
-        motorset[canID - 1].update();
+        DJIMotor::receiveTaskLoop(&rxheader, motorset);
         vTaskDelay(1);
     }
 }
@@ -113,17 +82,9 @@ void startUserTasks()
 {
     HAL_CAN_Start(&hcan);
 
-    // DJIMotor::init();  // Initalize the DJIMotor driver
+    DJIMotor::init();  // Initalize the DJIMotor driver
     
     DR16::init();      // Intialize the DR16 driver
-
-    xTaskCreateStatic(controllerTask,
-                      "controllerTask",
-                      256,
-                      NULL,
-                      1,
-                      uxControllerTaskStack,
-                      &xControllerTaskTCB);
     xTaskCreateStatic(motorTask,
                       "motorTask",
                       256,

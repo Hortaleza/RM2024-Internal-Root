@@ -18,13 +18,13 @@ namespace DR16
  * @brief Define a singleton RcData structure instance here.
  * @param connected The boolean variable updated in time showing the connection status 
  */
-static RcData rcData;
 
 /*Return the constant pointer of the current decoded data*/
 const RcData *getRcData() { return &rcData; }
 
 /*================================================================================*/
-
+RcData rcData = {};
+UniformedData uniformed = {};
 
 bool ifContinue = true;
 bool connected  = false;
@@ -54,6 +54,13 @@ void clearMemory() {
     // Set the middle position to be the default for switches
     rcData.s1       = 2;
     rcData.s2       = 2;
+    uniformed.channel0 = 0;
+    uniformed.channel1 = 0;
+    uniformed.channel2 = 0;
+    uniformed.channel3 = 0;
+    // Set the middle position to be the default for switches
+    uniformed.s1 = 2;
+    uniformed.s2 = 2;
 }
 
 /**
@@ -86,6 +93,8 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
         ErrorCallback(huart);
         return;
     }
+    // Record time when receive
+    lastReceiveTick = HAL_GetTick();
 
     // Decode the data after receiving (Rather stupid since I did not use the provided version)
     // TODO: Update decoding to the provided code by DJI
@@ -112,8 +121,18 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
         ErrorCallback(huart);
         return;
     }
-    // Record time when receive
-    lastReceiveTick = HAL_GetTick();
+
+    // Update uniformed data
+    uniformed.channel0 = 2 * (double(rcData.channel0) - DR16::RANGE_DEFAULT) /
+                         (DR16::RANGE_MAX - DR16::RANGE_MIN);
+    uniformed.channel1 = 2 * (double(rcData.channel1) - DR16::RANGE_DEFAULT) /
+                         (DR16::RANGE_MAX - DR16::RANGE_MIN);
+    uniformed.channel2 = 2 * (double(rcData.channel2) - DR16::RANGE_DEFAULT) /
+                         (DR16::RANGE_MAX - DR16::RANGE_MIN);
+    uniformed.channel3 = 2 * (double(rcData.channel3) - DR16::RANGE_DEFAULT) /
+                         (DR16::RANGE_MAX - DR16::RANGE_MIN);
+    uniformed.s1 = rcData.s1;
+    uniformed.s2 = rcData.s2;
 
     // Repeat
     HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 18);

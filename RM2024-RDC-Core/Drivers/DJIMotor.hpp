@@ -83,6 +83,10 @@ class MotorSet
     void setCurrentLimit(float limit); // TODO
 };
 
+void receiveTaskInit();
+void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& motorset);
+void init();
+
 /**
  * @brief A motor's handle. We do not require you to master the cpp class
  * syntax.

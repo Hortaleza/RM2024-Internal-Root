@@ -45,12 +45,26 @@ typedef struct
     uint8_t s2 : 2;  // Switch 2 data
 } RcData;
 
+typedef struct
+{
+    double channel0;
+    double channel1;
+    double channel2;
+    double channel3;
+
+    uint8_t s1 : 2;  // Switch 1 data
+    uint8_t s2 : 2;  // Switch 2 data
+} UniformedData;
+
 /**
  * @brief Access the decoded remote controller datat by this API
  * @remark You are recommended to:
  *         - Return a constant pointer of the decoded remote controller data
  * in this fucntion
  */
+
+extern RcData rcData;
+extern UniformedData uniformed;
 const RcData* getRcData();
 extern bool connected;
 extern uint8_t rxBuffer[18];
