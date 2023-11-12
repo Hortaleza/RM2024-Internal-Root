@@ -10,6 +10,18 @@ namespace MG996R
   SystemClock_Config();
   MX_GPIO_Init();
   MX_TIM1_Init();
+<<<<<<< HEAD
+=======
+  /* USER CODE BEGIN 2 */
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  setServoAngle(0); //Requires angle
+  HAL_Delay(1000);
+}
+>>>>>>> f8e3da21706812218ea961ea9f277e6416c4796d
 
 void setServoAngle(double angle) {
   // Map the angle to pulse width

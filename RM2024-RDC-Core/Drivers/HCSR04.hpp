@@ -10,9 +10,9 @@
 
 namespace SR04
 {
-#define TRIG_Pin GPIO_PIN_5
+#define TRIG_Pin GPIO_PIN_0
 #define TRIG_GPIO_Port GPIOA
-#define ECHO_Pin GPIO_PIN_6
+#define ECHO_Pin GPIO_PIN_1
 #define ECHO_GPIO_Port GPIOA
 
 void delay_us(uint16_t time);
