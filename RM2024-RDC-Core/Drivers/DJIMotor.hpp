@@ -26,6 +26,8 @@ namespace DJIMotor
 {
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
+extern uint8_t rxData[8];
+
 class DJIMotor
 {
    public:
@@ -45,6 +47,7 @@ class DJIMotor
         return setCurrent(current);
     }
     float position;
+    void update();
 
    private:
     CAN_FilterTypeDef filter;
@@ -62,8 +65,7 @@ class DJIMotor
     //  uint32_t disconnectCnt;
     //  uint32_t receiveCnt;
     bool connected;
-    void getFilter();
-    void update();
+    // void getFilter();
 };
 
 class MotorSet

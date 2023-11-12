@@ -24,8 +24,7 @@ void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
     txData1 = t1;
     txData2 = t2;
 
-    getFilter();
-    update();
+    // getFilter();
 }
 
 void DJIMotor::setOutput(int16_t output)
@@ -65,72 +64,69 @@ int DJIMotor::setCurrent(float current)
 
 int16_t DJIMotor::getRPM()
 {
-    update();
     return rpm;
 }
 
 uint8_t DJIMotor::getTemperature()
 {
-    update();
     return temperature;
 }
 
 int16_t DJIMotor::getCurrent()
 {
-    update();
     return actualCurrent;
 }
 
-void DJIMotor::getFilter()
-{
-    // TODO: Discuss if this function is necessary
-    uint32_t filter_id = 0x200 + canID;
-    uint32_t filter_mask = 0x7FF;
-    // filter            = {0,
-    //                      filterID,
-    //                      0,
-    //                      0,
-    //                      CAN_FILTER_FIFO0,
-    //                      ENABLE,
-    //                      CAN_FILTERMODE_IDMASK,
-    //                      CAN_FILTERSCALE_16BIT,
-    //                      CAN_FILTER_ENABLE,
-    //                      0};
-    CAN_FilterTypeDef local_filter = {filter_id << 5,
-                                0,
-                                0, 
-                                0,
-                                CAN_FILTER_FIFO0,
-                                ENABLE,
-                                CAN_FILTERMODE_IDMASK,
-                                CAN_FILTERSCALE_16BIT,
-                                CAN_FILTER_ENABLE,
-                                0};
-    // CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32
-    // - 5))) & 0xFFFF,
-    //                             (filter_id >> (11 - 3)) & 0xFFF8,
-    //                             ((filter_mask << 5)  | (filter_mask >> (32 -
-    //                             5))) & 0xFFFF, (filter_mask >> (11 - 3)) &
-    //                             0xFFF8,
-    //                              CAN_FILTER_FIFO0,
-    //                             ENABLE,
-    //                             CAN_FILTERMODE_IDMASK,
-    //                             CAN_FILTERSCALE_16BIT,
-    //                             CAN_FILTER_ENABLE,
-    //                             0};
-    filter = local_filter;
-    // filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
-    // filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
-    // filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
-    // filter.FilterMaskIdLow = (filter_mask >> (11 - 3)) & 0xFFF8;
+// void DJIMotor::getFilter()
+// {
+//     // TODO: Discuss if this function is necessary
+//     uint32_t filter_id = 0x200 + canID;
+//     uint32_t filter_mask = 0x7FF;
+//     // filter            = {0,
+//     //                      filterID,
+//     //                      0,
+//     //                      0,
+//     //                      CAN_FILTER_FIFO0,
+//     //                      ENABLE,
+//     //                      CAN_FILTERMODE_IDMASK,
+//     //                      CAN_FILTERSCALE_16BIT,
+//     //                      CAN_FILTER_ENABLE,
+//     //                      0};
+//     CAN_FilterTypeDef local_filter = {filter_id << 5,
+//                                 0,
+//                                 0, 
+//                                 0,
+//                                 CAN_FILTER_FIFO0,
+//                                 ENABLE,
+//                                 CAN_FILTERMODE_IDMASK,
+//                                 CAN_FILTERSCALE_16BIT,
+//                                 CAN_FILTER_ENABLE,
+//                                 0};
+//     // CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32
+//     // - 5))) & 0xFFFF,
+//     //                             (filter_id >> (11 - 3)) & 0xFFF8,
+//     //                             ((filter_mask << 5)  | (filter_mask >> (32 -
+//     //                             5))) & 0xFFFF, (filter_mask >> (11 - 3)) &
+//     //                             0xFFF8,
+//     //                              CAN_FILTER_FIFO0,
+//     //                             ENABLE,
+//     //                             CAN_FILTERMODE_IDMASK,
+//     //                             CAN_FILTERSCALE_16BIT,
+//     //                             CAN_FILTER_ENABLE,
+//     //                             0};
+//     filter = local_filter;
+//     // filter.FilterIdHigh = ((filter_id << 5)  | (filter_id >> (32 - 5))) & 0xFFFF; // STID[10:0] & EXTID[17:13]
+//     // filter.FilterIdLow = (filter_id >> (11 - 3)) & 0xFFF8; // EXID[12:5] & 3 Reserved bits
+//     // filter.FilterMaskIdHigh = ((filter_mask << 5)  | (filter_mask >> (32 - 5))) & 0xFFFF;
+//     // filter.FilterMaskIdLow = (filter_mask >> (11 - 3)) & 0xFFF8;
 
-    // filter.FilterFIFOAssignment = CAN_FilterFIFO0;
-    // filter.FilterNumber = filter_num;
-    // filter.FilterMode = CAN_FilterMode_IdMask;
-    // filter.FilterScale = CAN_FilterScale_32bit;
-    // filter.FilterActivation = ENABLE;
-    //CAN_FilterInit(&filter);
-}
+//     // filter.FilterFIFOAssignment = CAN_FilterFIFO0;
+//     // filter.FilterNumber = filter_num;
+//     // filter.FilterMode = CAN_FilterMode_IdMask;
+//     // filter.FilterScale = CAN_FilterScale_32bit;
+//     // filter.FilterActivation = ENABLE;
+//     //CAN_FilterInit(&filter);
+// }
 
 void DJIMotor::update()
 {
