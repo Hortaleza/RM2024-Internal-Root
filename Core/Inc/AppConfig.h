@@ -51,21 +51,14 @@
 
 // TR
 #define IS_TR TRUE
-    #if IS_TR
-        #ifndef FR
-        #define FR 0
-        #endif
-        #ifndef FL
-        #define FL 1
-        #endif
-        #ifndef BL
-        #define BL 2
-        #endif
-        #ifndef BR
-        #define BR 3
-        #endif
-    #endif
+
+// AR
+#define IS_AR TRUE
 
 // HCSR04
 #define USE_HCSR04 TRUE
+
+// LineTracker
+#define USE_LINETRACKER TRUE
+
     

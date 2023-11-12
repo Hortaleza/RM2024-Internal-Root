@@ -1,12 +1,12 @@
 #pragma once
 #include "AppConfig.h"
 
-#if USE_LINETRACKER
+#if IS_AR
+
 #include "main.h"
 
-namespace LineTracker
+namespace ARControl
 {
-void updateStatus();
 
 }
 #endif

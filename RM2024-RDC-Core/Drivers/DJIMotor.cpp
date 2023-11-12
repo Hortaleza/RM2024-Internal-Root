@@ -1,7 +1,7 @@
 #include "DJIMotor.hpp"
 
 // DEF
-#ifdef USE_DJI_MOTOR
+#if USE_DJI_MOTOR
 #ifndef RDC_DJIMotor_MAX_NUM
 #define RDC_DJIMotor_MAX_NUM 8
 #endif

@@ -16,16 +16,19 @@
 #include "main.h"
 #include "task.h"  // Include task
 #include "TRControlTask.hpp"
+#include "ARControlTask.hpp"
+#include "LineTracker.hpp"
+
 
 /*Allocate the stack for our PID task*/
 StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
-StackType_t uxDR16TaskStack[256];
+StackType_t uxARTaskStack[256];
 
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
-StaticTask_t xDR16TaskTCB;
+StaticTask_t xARTaskTCB;
 
 /**
  * @todo Show your control outcome of the M3508 motor as follows
@@ -54,12 +57,11 @@ void CANReceiveTask(void *)
     }
 }
 
-void DR16Task(void *)
+void ARTask(void *)
 {
     while (true)
     {
-        // Update connection status every 100ms
-        DR16::getConnectionStatus(100);
+        // For test use
         vTaskDelay(10);
     }
 }
@@ -86,7 +88,7 @@ void startUserTasks()
                       uxReceiveTaskStack,
                       &xReceiveTaskTCB);
     xTaskCreateStatic(
-        DR16Task, "DR16Task", 256, NULL, 1, uxDR16TaskStack, &xDR16TaskTCB);
+        ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
 
     /**
      * @todo Add your own task here

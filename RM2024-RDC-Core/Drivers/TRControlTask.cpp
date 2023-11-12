@@ -13,9 +13,9 @@ int indices[4]        = {FR, FL, BL, BR};
 int previousMode = 2;
 
 // PID
-float Kp                        = 10;
-float Ki                        = 2;
-float Kd                        = 0.02;
+float Kp                        = 12;
+float Ki                        = 0.6;
+float Kd                        = 10;
 
 static Control::PID motorPID[4] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
@@ -58,6 +58,8 @@ void WholeTRControl(int delay)
     }
 }
 
+inline double signedSquare(double a) { return (a > 0) ? a * a : -a * a; }
+
 void runFastMode(int delay)
 {
     // Check if connected
@@ -76,22 +78,22 @@ void runFastMode(int delay)
 
     // Calculate RPM using Mecanum wheels algorithm
 
-    double forward = DR16::uniformed.channel1;
-    double strafe  = DR16::uniformed.channel0;
-    double turn    = DR16::uniformed.channel2;
+    double forward = signedSquare(DR16::uniformed.channel1);
+    double strafe  = signedSquare(DR16::uniformed.channel0);
+    double turn    = signedSquare(DR16::uniformed.channel2);
 
     double targetRatio[4];
     
     // @todo: Needs to reset the signs to match our motor setup!!
-
-    targetRatio[indices[0]] = (forward - strafe - turn) / 3.0;
-    targetRatio[indices[1]] = (forward + strafe + turn) / 3.0;
-    targetRatio[indices[2]] = (forward - strafe + turn) / 3.0;
-    targetRatio[indices[3]] = (forward + strafe - turn) / 3.0;
+    
+    targetRatio[indices[0]] = -(forward - strafe - turn);
+    targetRatio[indices[1]] = (forward + strafe + turn);
+    targetRatio[indices[2]] = (forward - strafe + turn);
+    targetRatio[indices[3]] = -(forward + strafe - turn);
 
     // Find the one with the maximum absolute value among the four
-    double maxabs = (abs(forward) + abs(strafe) + abs(turn)) / 3.0;
-    if (3*maxabs >= 1) {
+    double maxabs = (abs(forward) + abs(strafe) + abs(turn));
+    if (maxabs >= 1) {
         targetRatio[indices[0]] /= maxabs;
         targetRatio[indices[1]] /= maxabs;
         targetRatio[indices[2]] /= maxabs;
@@ -105,7 +107,7 @@ void runFastMode(int delay)
         targetRPM[i]          = targetRatio[i] * DJIMotor::MAX_RPM;
         currentRPM[i]         = DJIMotor::motorset[i].getRPM();
         DJIMotor::motorset[i].setCurrent(
-            motorPID[_].update(targetRPM[i], currentRPM[i], delay/1000.0f));
+            motorPID[_].update(targetRPM[i], currentRPM[i], delay));
     }
 
 
