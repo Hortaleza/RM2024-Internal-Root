@@ -8,6 +8,9 @@
 #include "can.h"
 namespace DJIMotor
 {
+
+uint8_t rxData[8] = {};
+
 void seperateIntoTwoBytes(const int16_t &original,
                           int8_t &higher,
                           int8_t &lower)
@@ -130,13 +133,6 @@ int16_t DJIMotor::getCurrent()
 
 void DJIMotor::update()
 {
-    // Get information from CAN
-    HAL_CAN_ConfigFilter(&hcan, &filter);
-    uint8_t rxData[8] = {};
-    CAN_RxHeaderTypeDef rxheader;
-    while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, rxData) != HAL_OK)
-        ;
-    // @todo: Distribute the data to the variables
     // CAN is stable so no need to check validity
 
     position      = rxData[1] | (rxData[0] << 8);
