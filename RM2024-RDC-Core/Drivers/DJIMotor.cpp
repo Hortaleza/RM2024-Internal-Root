@@ -19,11 +19,11 @@ void seperateIntoTwoBytes(const int16_t &original,
     lower  = original & 0b11111111;
 }
 
-void DJIMotor::init(uint8_t index, uint8_t *t1, uint8_t *t2)
+void DJIMotor::init(uint8_t id, uint8_t *t1, uint8_t *t2)
 {
     // Not doing it in the constructor is to avoid dynamic memory distribution
     // Need to set canID in advance
-    canID   = index + 1;
+    canID   = id;
     txData1 = t1;
     txData2 = t2;
 

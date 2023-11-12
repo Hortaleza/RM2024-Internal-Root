@@ -47,13 +47,13 @@ void motorTask(void *)
         // motorset[0].setCurrent(
         //     motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));
 
-        targetRPM[1]  = 0;
+        targetRPM[0]  = 500;
 
         // targetRPM[1]  = (connected) ? (int16_t)(uniformed[1] * MAX_RPM) : 0;
-        currentRPM[1] = motorset[1].getRPM();
+        currentRPM[0] = motorset[0].getRPM();
         for (int i = 0; i < 8; i++)
             motorset[i].setCurrent(
-                motorPID1.update(targetRPM[1], currentRPM[1], 0.001f));
+                motorPID1.update(targetRPM[0], currentRPM[0], 0.001f));
 
         motorset.transmit();  // Transmit the data to the motor in a package
         
@@ -96,10 +96,10 @@ void receiveTask(void *)
         while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, DJIMotor::rxData) !=
                HAL_OK)
             ;
-        static volatile int canIDtest = rxheader.StdId - 0x200;
-        if (!(canIDtest > 0 && canIDtest < 9))
+        int canID = rxheader.StdId - 0x200;
+        if (!(canID > 0 && canID < 9))
             continue;
-        motorset[canIDtest - 1].update();
+        motorset[canID - 1].update();
         vTaskDelay(1);
     }
 }
