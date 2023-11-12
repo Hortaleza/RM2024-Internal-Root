@@ -8,6 +8,9 @@
 #include "can.h"
 namespace DJIMotor
 {
+
+uint8_t rxData[8] = {};
+
 void seperateIntoTwoBytes(const int16_t &original,
                           int8_t &higher,
                           int8_t &lower)
@@ -65,19 +68,16 @@ int DJIMotor::setCurrent(float current)
 
 int16_t DJIMotor::getRPM()
 {
-    update();
     return rpm;
 }
 
 uint8_t DJIMotor::getTemperature()
 {
-    update();
     return temperature;
 }
 
 int16_t DJIMotor::getCurrent()
 {
-    update();
     return actualCurrent;
 }
 
@@ -103,7 +103,7 @@ void DJIMotor::getFilter()
                                 CAN_FILTER_FIFO0,
                                 ENABLE,
                                 CAN_FILTERMODE_IDMASK,
-                                CAN_FILTERSCALE_16BIT,
+                                CAN_FILTERSCALE_32BIT,
                                 CAN_FILTER_ENABLE,
                                 0};
     // CAN_FilterTypeDef local_filter = {((filter_id << 5)  | (filter_id >> (32
@@ -134,15 +134,7 @@ void DJIMotor::getFilter()
 
 void DJIMotor::update()
 {
-    // Get information from CAN
-    HAL_CAN_ConfigFilter(&hcan, &filter);
-    uint8_t rxData[8] = {};
-    CAN_RxHeaderTypeDef rxheader;
-    while (HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &rxheader, rxData) != HAL_OK)
-        ;
-    // @todo: Distribute the data to the variables
     // CAN is stable so no need to check validity
-
     position      = rxData[1] | (rxData[0] << 8);
     rpm           = rxData[3] | (rxData[2] << 8);
     actualCurrent = rxData[5] | (rxData[4] << 8);
@@ -157,9 +149,10 @@ MotorSet::MotorSet()
         this->motors[i].init(i + 1, txData1, txData2);
     }
 }
+uint32_t mailbox1, mailbox2;
+
 void MotorSet::transmit()
 {
-    uint32_t mailbox1, mailbox2;
     CAN_TxHeaderTypeDef txHeader1 = {
         0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
     CAN_TxHeaderTypeDef txHeader2 = {

@@ -24,6 +24,8 @@
 #include "can.h"
 namespace DJIMotor
 {
+
+extern uint8_t rxData[8];
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
 class DJIMotor
@@ -45,6 +47,7 @@ class DJIMotor
         return setCurrent(current);
     }
     float position;
+    void update();
 
    private:
     CAN_FilterTypeDef filter;
@@ -63,7 +66,6 @@ class DJIMotor
     //  uint32_t receiveCnt;
     bool connected;
     void getFilter();
-    void update();
 };
 
 class MotorSet
