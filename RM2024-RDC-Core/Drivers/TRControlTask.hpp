@@ -9,8 +9,10 @@
 
 namespace TRControl
 {
-
+    
+void WholeTRControl(int delay);
 void runFastMode(int delay);
+void runAccurateMode(int delay);
 
 } // namespace TRControl
 

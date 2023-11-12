@@ -44,6 +44,8 @@ class PID
     // You might wish to add more functions for your PID module
     /*===================*/
 
+    void clear();
+
     /*===================*/
     // Your self-defined functions end here
     /*===================*/

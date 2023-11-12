@@ -9,16 +9,52 @@ namespace TRControl
 int16_t currentRPM[8] = {};
 int16_t targetRPM[8]  = {};
 
+int previousMode = 2;
+
+float Kp                        = 10;
+float Ki                        = 2;
+float Kd                        = 0.02;
+static Control::PID motorPID[4] = {
+    {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
+};
+
+static Control::PID accuratePID[4] = {
+    {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd} // Needs to modify
+};
+
+void WholeTRControl(int delay)
+{
+    // Check mode
+    int modeNow = DR16::uniformed.s2;
+    if (modeNow != previousMode)
+    {
+        // re-initialize all PID modules
+        // How to avoid shaking when switching modes?
+        for (int i = 0; i < 4; i++)
+        {
+            motorPID[i].clear();
+            accuratePID[i].clear();
+        }
+        // switch mode
+
+        previousMode = modeNow;
+    }
+
+    // Goto the mode
+    if (previousMode == 2)
+    {
+        runFastMode(delay);
+        return;
+    }
+    if (previousMode == 1)
+    {
+        runAccurateMode(delay);
+        return;
+    }
+}
+
 void runFastMode(int delay)
 {
-    // Wheels control
-    float Kp                = 10;
-    float Ki                = 2;
-    float Kd                = 0.02;
-    static Control::PID motorPID[4] = {
-        {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
-    };
-
     int indices[4] = {FR, FL, BL, BR};
 
     // Check if connected
@@ -33,6 +69,8 @@ void runFastMode(int delay)
         return;
     }
 
+    /* ===== Wheels control ===== */
+
     // Calculate RPM using Mecanum wheels algorithm
 
     double forward = DR16::uniformed.channel1;
@@ -40,6 +78,8 @@ void runFastMode(int delay)
     double turn    = DR16::uniformed.channel2;
 
     double targetRatio[4];
+    
+    // @todo: Needs to reset the signs to match our motor setup!!
 
     targetRatio[indices[0]] = (forward - strafe - turn) / 3.0;
     targetRatio[indices[1]] = (forward + strafe + turn) / 3.0;
@@ -56,7 +96,6 @@ void runFastMode(int delay)
     }
 
     // Set RPM
-
     for (int _ = 0; _ < 4; _++)
     {
         int i                 = indices[_];
@@ -75,6 +114,11 @@ void runFastMode(int delay)
 
 
     DJIMotor::motorset.transmit();  // Transmit the data to the motor in a package
+}
+
+void runAccurateMode(int delay)
+{
+    
 }
 
 }  // namespace TRControl

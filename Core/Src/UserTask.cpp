@@ -33,10 +33,11 @@ StaticTask_t xDR16TaskTCB;
 void motorTask(void *)
 {
     // TODO: motorset.setCurrentLimit();
+    int delay = 1;
     while (true)
     {
-        TRControl::runFastMode(1);
-        vTaskDelay(1);  // Delay and block the task for 1ms.
+        TRControl::WholeTRControl(delay);
+        vTaskDelay(delay);  // Delay and block the task for 1ms.
     }
 }
 

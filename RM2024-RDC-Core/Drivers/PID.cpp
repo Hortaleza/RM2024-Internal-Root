@@ -45,10 +45,7 @@ namespace Control
 
 float PID::update(float target, float measurement, float dt)
 {
-    /*=====================================================================*/
-    // Your implementation of the PID algorithm begins here
-    /*=====================================================================*/
-    
+    // @todo: change the time unit to be 1ms
     integral = 0;
     error = target - measurement;  // Calculate the error
     //if (abs(error) <=  200)
@@ -83,6 +80,13 @@ float PID::update(float target, float measurement, float dt)
     // Your implementation of the PID algorithm ends here
     /*=====================================================================*/
     return this->output;  // You need to give your user the output for every update
+}
+
+void PID::clear()
+{
+    lastError = 0;
+    iOut           = 0; // should change this actually ....
+    previousfilter = 0;
 }
 
 }  // namespace Control
