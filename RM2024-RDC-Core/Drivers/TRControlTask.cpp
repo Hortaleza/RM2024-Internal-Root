@@ -8,12 +8,15 @@ namespace TRControl
 
 int16_t currentRPM[8] = {};
 int16_t targetRPM[8]  = {};
+int indices[4]        = {FR, FL, BL, BR};
 
 int previousMode = 2;
 
+// PID
 float Kp                        = 10;
 float Ki                        = 2;
 float Kd                        = 0.02;
+
 static Control::PID motorPID[4] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
 };
@@ -21,6 +24,8 @@ static Control::PID motorPID[4] = {
 static Control::PID accuratePID[4] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd} // Needs to modify
 };
+
+
 
 void WholeTRControl(int delay)
 {
@@ -55,8 +60,6 @@ void WholeTRControl(int delay)
 
 void runFastMode(int delay)
 {
-    int indices[4] = {FR, FL, BL, BR};
-
     // Check if connected
 
     bool connected = DR16::getConnectionStatus(100);

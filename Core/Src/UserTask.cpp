@@ -42,7 +42,7 @@ void motorTask(void *)
 }
 
 
-void receiveTask(void *)
+void CANReceiveTask(void *)
 {
     DJIMotor::receiveTaskInit();
     CAN_RxHeaderTypeDef rxheader;
@@ -84,8 +84,8 @@ void startUserTasks()
                       uxPIDTaskStack,
                       &xPIDTaskTCB);  // Add the main task into the scheduler
     xTaskCreateStatic(
-        receiveTask,
-        "receiveTask",
+        CANReceiveTask,
+        "CANReceiveTask",
         256,
         NULL,
         1,
