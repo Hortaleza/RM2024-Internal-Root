@@ -36,7 +36,8 @@ void motorTask(void *)
     // static Control::PID motorPID1(10, 1, 0);
     while (true)
     {
-        targetRPM[0]  = (int16_t)(uniformed[0] * MAX_RPM);
+        targetRPM[0] = 1000;
+        // targetRPM[0]  = (int16_t)(uniformed[0] * MAX_RPM);
         currentRPM[0] = DJIMotor::Motors[0].rpm; // Update ?
         DJIMotor::Motors[0].setCurrent(
             motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));

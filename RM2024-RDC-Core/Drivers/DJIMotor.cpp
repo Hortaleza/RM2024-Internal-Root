@@ -31,7 +31,7 @@ CAN_FilterTypeDef rxFilter = {0x200,
                               CAN_FILTER_FIFO0,
                               ENABLE,
                               CAN_FILTERMODE_IDMASK,
-                              CAN_FILTERSCALE_16BIT,
+                              CAN_FILTERSCALE_32BIT,
                               CAN_FILTER_ENABLE,
                               0};
 
@@ -100,7 +100,7 @@ DJIMotor &getMotorByID(uint8_t canID) { return Motors[canID - 1]; }
 void rxCallback(__CAN_HandleTypeDef *hcan)
 {
     // Check rxHeader and Update the corresponding motor's information
-    uint8_t receivedCanID = (rxHeader.StdId >> 5) - 0x200;
+    uint8_t receivedCanID = (rxHeader.ExtId >> 5) - 0x200;
     // If reads the sent message, read again (Don't know if this is useful??
     if (receivedCanID == 0)
     {
