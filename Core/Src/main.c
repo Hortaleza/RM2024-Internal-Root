@@ -99,6 +99,8 @@ int main(void)
     MX_USART2_UART_Init();
     MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
+    HAL_TIM_Base_Start(&htim1); 
+    HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);
     HAL_CAN_Start(&hcan);
     extern void startRTOS(void);
     startRTOS();

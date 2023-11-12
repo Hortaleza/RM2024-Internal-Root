@@ -42,7 +42,6 @@ void MX_TIM1_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-void MX_TIM3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
