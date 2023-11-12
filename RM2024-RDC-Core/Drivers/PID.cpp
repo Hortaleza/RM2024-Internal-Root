@@ -7,6 +7,13 @@ float abs(float n)
     return -n;
 }
 
+double abs(double n)
+{
+    if (n >= 0)
+        return n;
+    return -n;
+}
+
 #if USE_PID
 namespace Control
 {

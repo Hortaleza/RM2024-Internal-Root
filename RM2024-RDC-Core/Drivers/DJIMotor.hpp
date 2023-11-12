@@ -26,6 +26,8 @@ namespace DJIMotor
 {
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
+const int16_t MAX_RPM   = 19000;
+
 extern uint8_t rxData[8];
 
 class DJIMotor
@@ -83,6 +85,8 @@ class MotorSet
     void setCurrentLimit(float limit); // TODO
 };
 
+extern MotorSet motorset;
+
 void receiveTaskInit();
 void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& motorset);
 void init();
@@ -117,9 +121,6 @@ accumulated position(orientation) of the motor
  * ..... And more .....
  *
 ============================================================*/
-
-
-
 
 
 /*===========================================================*/

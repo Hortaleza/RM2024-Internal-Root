@@ -6,7 +6,7 @@
 /* Include the DR16.hpp header file here, so the compiler would look for the
  * variable or function definition here */
 #include "DR16.hpp"
-#include <stdio.h>
+// #include <stdio.h>
 #include <memory.h>
 
 #if USE_DR16
@@ -35,16 +35,16 @@ uint32_t lastReceiveTick = HAL_GetTick();
 
 char strBuffer[100];
 
-char* getStatus() {
-    memset(strBuffer, 0, 100 * sizeof(char));
-    sprintf(strBuffer,
-            "channel0: %u\nchannel1: %u\nchannel2: %u\nchannel3: %u\n",
-            rcData.channel0,
-            rcData.channel1,
-            rcData.channel2,
-            rcData.channel3);
-    return strBuffer;
-}
+// char* getStatus() {
+//     memset(strBuffer, 0, 100 * sizeof(char));
+//     sprintf(strBuffer,
+//             "channel0: %u\nchannel1: %u\nchannel2: %u\nchannel3: %u\n",
+//             rcData.channel0,
+//             rcData.channel1,
+//             rcData.channel2,
+//             rcData.channel3);
+//     return strBuffer;
+// }
 
 void clearMemory() {
     rcData.channel0 = RANGE_DEFAULT;

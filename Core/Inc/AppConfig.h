@@ -27,7 +27,7 @@
         #endif
     #endif
 
-#define USE_BUZZER TRUE
+#define USE_BUZZER FALSE
     #if USE_BUZZER
         #ifndef BUZZER_TIM_CLOCK
         #define BUZZER_TIM_CLOCK 72000000
@@ -48,4 +48,21 @@
 
 // PID
 #define USE_PID TRUE
+
+// TR
+#define IS_TR TRUE
+    #if IS_TR
+        #ifndef FR
+        #define FR 0
+        #endif
+        #ifndef FL
+        #define FL 1
+        #endif
+        #ifndef BL
+        #define BL 2
+        #endif
+        #ifndef BR
+        #define BR 3
+        #endif
+    #endif
     

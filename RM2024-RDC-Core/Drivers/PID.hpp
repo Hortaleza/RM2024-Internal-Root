@@ -11,13 +11,12 @@
 #include "AppConfig.h"
 #include "can.h"
 float abs(float n);
-
+double abs(double n);
 #if USE_PID
 #include "FreeRTOS.h"
 #include "task.h"
 
-
-namespace Control
+    namespace Control
 {
 
 class PID

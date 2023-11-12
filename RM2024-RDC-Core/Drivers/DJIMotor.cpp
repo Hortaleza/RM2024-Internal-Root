@@ -188,6 +188,12 @@ void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& motorset)
 }
 
 void init() { receiveTaskInit(); }
+
+MotorSet motorset = MotorSet();
+
+
+
+
 }
 // namespace DJIMotor
 #endif

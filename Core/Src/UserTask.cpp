@@ -15,47 +15,27 @@
 #include "PID.hpp"     // Include PID
 #include "main.h"
 #include "task.h"  // Include task
+#include "TRControlTask.hpp"
 
 /*Allocate the stack for our PID task*/
 StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
+StackType_t uxDR16TaskStack[256];
 
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
+StaticTask_t xDR16TaskTCB;
 
-const int16_t MAX_RPM = 19000;
-int16_t currentRPM[8] = {};
-int16_t targetRPM[8]  = {};
-bool connected        = 0;
-DJIMotor::MotorSet motorset;
 /**
  * @todo Show your control outcome of the M3508 motor as follows
  */
 void motorTask(void *)
 {
     // TODO: motorset.setCurrentLimit();
-    Control::PID motorPID1(10, 2, 0.02);
-    // static Control::PID motorPID1(10, 2, 0);
     while (true)
     {
-        // targetRPM[0]  = (connected) ? (int16_t)(uniformed[0] * MAX_RPM) : 0;
-        // currentRPM[0] = motorset[0].getRPM();
-        // motorset[0].setCurrent(
-        //     motorPID0.update(targetRPM[0], currentRPM[0], 0.001f));
-        int canid         = 2;
-        int index         = canid - 1;
-
-        connected = DR16::getConnectionStatus(100);
-
-        // targetRPM[1]  = (connected) ? (int16_t)(DR16::uniformed.channel0 * MAX_RPM) : 0;
-        currentRPM[index] = motorset[index].getRPM();
-
-        motorset[index].setCurrent(
-            motorPID1.update(targetRPM[index], currentRPM[index], 0.001f));
-
-        motorset.transmit();  // Transmit the data to the motor in a package
-        
+        TRControl::runFastMode(1);
         vTaskDelay(1);  // Delay and block the task for 1ms.
     }
 }
@@ -68,8 +48,18 @@ void receiveTask(void *)
 
     while (true)
     {
-        DJIMotor::receiveTaskLoop(&rxheader, motorset);
+        DJIMotor::receiveTaskLoop(&rxheader, DJIMotor::motorset);
         vTaskDelay(1);
+    }
+}
+
+void DR16Task(void *)
+{
+    while (true)
+    {
+        // Update connection status every 100ms
+        DR16::getConnectionStatus(100);
+        vTaskDelay(10);
     }
 }
 
@@ -100,6 +90,14 @@ void startUserTasks()
         1,
         uxReceiveTaskStack,
         &xReceiveTaskTCB);  // Add the main task into the scheduler
+    xTaskCreateStatic(
+        DR16Task,
+        "DR16Task",
+        256,
+        NULL,
+        1,
+        uxDR16TaskStack,
+        &xDR16TaskTCB);  // Add the main task into the scheduler
 
     /**
      * @todo Add your own task here
