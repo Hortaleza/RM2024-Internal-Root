@@ -1,7 +1,7 @@
 #pragma once
 #include "AppConfig.h"
 
-#if USE_SR04
+#if USE_HCSR04
 
 #include "main.h"
 #include "usart.h"

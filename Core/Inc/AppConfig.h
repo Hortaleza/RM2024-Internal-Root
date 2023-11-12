@@ -65,4 +65,7 @@
         #define BR 3
         #endif
     #endif
+
+// HCSR04
+#define USE_HCSR04 TRUE
     

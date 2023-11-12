@@ -176,7 +176,7 @@ void receiveTaskInit()
     HAL_CAN_ConfigFilter(&hcan, &filter);
 }
 
-void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& motorset)
+void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& ms)
 {
     while (HAL_CAN_GetRxMessage(
                &hcan, CAN_RX_FIFO0, rxheader, rxData) != HAL_OK)
@@ -184,7 +184,7 @@ void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& motorset)
     int canID = (*rxheader).StdId - 0x200;
     if (!(canID > 0 && canID < 9))
         return;
-    motorset[canID - 1].update();
+    ms[canID - 1].update();
 }
 
 void init() { receiveTaskInit(); }
