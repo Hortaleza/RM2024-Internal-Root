@@ -111,6 +111,8 @@ void receiveTask(void *)
 
 void startUserTasks()
 {
+    HAL_CAN_Start(&hcan);
+
     // DJIMotor::init();  // Initalize the DJIMotor driver
     
     DR16::init();      // Intialize the DR16 driver

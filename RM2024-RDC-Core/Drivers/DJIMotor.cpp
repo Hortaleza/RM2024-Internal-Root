@@ -149,13 +149,13 @@ MotorSet::MotorSet()
         this->motors[i].init(i + 1, txData1, txData2);
     }
 }
+uint32_t mailbox1, mailbox2;
+CAN_TxHeaderTypeDef txHeader1 = {
+    0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
+CAN_TxHeaderTypeDef txHeader2 = {
+    0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
 void MotorSet::transmit()
 {
-    uint32_t mailbox1, mailbox2;
-    CAN_TxHeaderTypeDef txHeader1 = {
-        0x200, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
-    CAN_TxHeaderTypeDef txHeader2 = {
-        0x1FF, 0, CAN_ID_STD, CAN_RTR_DATA, 8, DISABLE};
     HAL_CAN_AddTxMessage(&hcan, &txHeader1, txData1, &mailbox1);
     HAL_CAN_AddTxMessage(&hcan, &txHeader2, txData2, &mailbox2);
     // TODO: Return Status Code
