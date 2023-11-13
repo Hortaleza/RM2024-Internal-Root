@@ -62,7 +62,7 @@ void WholeTRControl(int delay)
     }
     if (previousMode == 3)
     {
-        // Slow moving plus arm control
+        // Slow moving plus arm control (without turning)
         runArmMode(0.1, delay);
         return;
     }
@@ -189,6 +189,13 @@ void runArmMode(float speed, int delay)
 
 
     DJIMotor::motorset.transmit();  // Transmit the data to the motor in a package
+}
+
+void runAutoMode()
+{
+    // must be completely auto control
+    
+
 }
 
 }  // namespace TRControl
