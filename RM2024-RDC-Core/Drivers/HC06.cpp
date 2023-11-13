@@ -59,9 +59,10 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
     // Record time when receive
     lastReceiveTick = HAL_GetTick();
 
-    // Decode the data after receiving 
+    // @todo: Decode the data after receiving
 
-    // Verify decoded data range;
+    // @todo: Verify decoded data range;
+
     bool valid = 1;
     if (!valid)
     {
