@@ -114,14 +114,14 @@ void startUserTasks()
                       &xReceiveTaskTCB);
     xTaskCreateStatic(
         ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
-    xTaskCreateStatic(
-        ultraSoundTask,
-        "ultraSoundTask",
-        256,
-        NULL,
-        1,
-        uxUltraSoundTaskStack,
-        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+    // xTaskCreateStatic(
+    //     ultraSoundTask,
+    //     "ultraSoundTask",
+    //     256,
+    //     NULL,
+    //     1,
+    //     uxUltraSoundTaskStack,
+    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 
     /**
      * @todo Add your own task here
