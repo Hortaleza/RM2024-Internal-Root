@@ -62,6 +62,8 @@ void ARTask(void *)
     while (true)
     {
         // For test use
+
+        LineTracker::updateStatus();
         vTaskDelay(10);
     }
 }

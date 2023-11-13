@@ -12,7 +12,8 @@ static volatile bool status = 0;
 
 void updateStatus()
 {
-    status = HAL_GPIO_ReadPin(GPIOA, A0PIN);
+    status = HAL_GPIO_ReadPin(GPIOA, D0PIN);
+    // Black: status = 0; White status = 1;
 }
 
 }
