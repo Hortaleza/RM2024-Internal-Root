@@ -8,59 +8,106 @@ namespace TRControl
 
 int16_t currentRPM[8] = {};
 int16_t targetRPM[8]  = {};
-int indices[4]        = {FR, FL, BL, BR};
+const int indices[4]  = {FR, FL, BL, BR};
 
-int previousMode = 2;
+int left_mode  = 2;
+int right_mode = 2;
 
 // PID
-float Kp = 12;
-float Ki = 0.6;
-float Kd = 10;
+const float Kp = 12;
+const float Ki  = 0.6;
+const float Kd   = 10;
 
 static Control::PID motorPID[4] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
 };
 
-float Kp_arm = 12;
-float Ki_arm = 0.6;
-float Kd_arm = 10;
+const float Kp_arm = 12;
+const float Ki_arm = 0.6;
+const float Kd_arm = 10;
 
 static Control::PID armPID = {Kp_arm, Ki_arm, Kd_arm};
 
+
+// Auto mode
+
+const float Kp_aut = 12;
+const float Ki_aut = 0.6;
+const float Kd_aut = 10;
+
+static Control::PID autoPID = {Kp_aut, Ki_aut, Kd_aut};
+
+float target_distance = 12; // To be determined when mode is switched 
+
+
+
+
+
+
 void WholeTRControl(int delay)
 {
-    // Check mode
-    int modeNow = DR16::uniformed.s2;
+    // Check if connected
 
-    // If switched
-    if (modeNow != previousMode)
+    bool connected = DR16::getConnectionStatus(100);
+
+    if (!connected)
     {
-        /* ===== re-initialize all PID modules ===== */
-        // How to avoid shaking when switching modes?
+        for (int i = 0; i < 8; i++)
+        {
+            targetRPM[i] = 0;
+        }
+        return;
+    }
+
+    // Check mode
+    int new_left_mode  = DR16::uniformed.s1;
+    int new_right_mode = DR16::uniformed.s2;
+
+    /* ===== If switched, re-initialize all PID modules ===== */
+    if (new_right_mode != right_mode || new_left_mode != left_mode)
+    {
+        // Clear motorPID
         for (int i = 0; i < 4; i++)
         {
             motorPID[i].clear();
         }
         armPID.clear();
 
-        // update mode status
+        // Clear armPID
+        armPID.clear();
 
-        previousMode = modeNow;
+        // Clear autoPID
+        autoPID.clear();
+
+        // update mode status
+        left_mode  = new_left_mode;
+        right_mode = new_right_mode;
     }
 
-    // Goto the mode
-    if (previousMode == 2)
+    // @todo: How to avoid shaking when switching modes?
+
+    /* ===== Goto the mode ===== */
+
+    // Check if is auto mode
+    if (left_mode == 3)
+    {
+        runAutoMode(delay);
+        return; // This return is a MUST!!!
+    }
+
+    // If manual then go to the specific one
+    if (right_mode == 2)
     {
         runNormalMode(1, delay);
         return;
     }
-    if (previousMode == 1)
+    if (right_mode == 1)
     {
         // Slow moving
         runNormalMode(0.1, delay);
         return;
     }
-    if (previousMode == 3)
+    if (right_mode == 3)
     {
         // Slow moving plus arm control (without turning)
         runArmMode(0.1, delay);
@@ -72,18 +119,6 @@ inline double signedSquare(double a) { return (a > 0) ? a * a : -a * a; }
 
 void runNormalMode(float speed, int delay)
 {
-    // Check if connected
-
-    bool connected = DR16::getConnectionStatus(100);
-
-    if (!connected)
-    {
-        for (int i = 0; i < 8; i++) {
-            targetRPM[i] = 0;
-        }
-        return;
-    }
-
     /* ===== Wheels control ===== */
 
     // Calculate RPM using Mecanum wheels algorithm
@@ -191,11 +226,39 @@ void runArmMode(float speed, int delay)
     DJIMotor::motorset.transmit();  // Transmit the data to the motor in a package
 }
 
-void runAutoMode()
+void runAutoMode(int delay)
 {
     // must be completely auto control
-    
 
+    // @todo: If arriving at the destination stop
+    if (0)
+    {
+
+    }
+
+    int16_t forward = 200;
+
+    float measured_distance; // @todo: Use ultrasound
+
+    int16_t turn = autoPID.update(target_distance, measured_distance, delay);
+
+    // @todo: Needs to reset the signs to match our motor setup!
+
+    targetRPM[indices[0]] = -(forward - turn);
+    targetRPM[indices[1]] = (forward + turn);
+    targetRPM[indices[2]] = (forward + turn);
+    targetRPM[indices[3]] = -(forward - turn);
+
+    for (int _ = 0; _ < 4; _++)
+    {
+        int i         = indices[_];
+        currentRPM[i] = DJIMotor::motorset[i].getRPM();
+        DJIMotor::motorset[i].setCurrent(
+            motorPID[_].update(targetRPM[i], currentRPM[i], delay));
+    }
+
+    DJIMotor::motorset
+        .transmit();  // Transmit the data to the motor in a package
 }
 
 }  // namespace TRControl
