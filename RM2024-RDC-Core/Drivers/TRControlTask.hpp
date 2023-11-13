@@ -19,13 +19,16 @@
 #ifndef BR
 #define BR 3
 #endif
+#ifndef ARM
+#define ARM 4
+#endif
 
 namespace TRControl
 {
     
 void WholeTRControl(int delay);
-void runFastMode(int delay);
-void runAccurateMode(int delay);
+void runNormalMode(float speed, int delay);
+void runArmMode(float speed, int delay);
 
 } // namespace TRControl
 
