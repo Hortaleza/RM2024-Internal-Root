@@ -76,22 +76,22 @@ void stop(){
 
 void run(){
     updateStatus();
-    if ( !Lstatus && !Rstatus ) {
+    if ( Lstatus && Rstatus ) {
         stop();
         DJIMotor::motorset.transmit();
       }
     
-    if ( !Lstatus && Rstatus ) {
+    if ( Lstatus && !Rstatus ) {
         left();
         DJIMotor::motorset.transmit();
       }
     
-    if ( Lstatus && !Rstatus ) {
+    if ( !Lstatus && Rstatus ) {
         right();
         DJIMotor::motorset.transmit();
       }
     
-    if ( Lstatus && Rstatus ) {
+    if ( !Lstatus && !Rstatus ) {
         forward();
         DJIMotor::motorset.transmit();
       }
