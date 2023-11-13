@@ -19,12 +19,13 @@
 #include "MG996R.hpp"
 #include "TRControlTask.hpp"
 #include "ARControlTask.hpp"
+#include "HC05.hpp"
 
 
 /*Allocate the stack for our PID task*/
 StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
-StackType_t uxARTaskStack[256];
+StackType_t uxARTaskStack[512];
 StackType_t uxUltraSoundTaskStack[256];
 
 /*Declare the PCB for our PID task*/
@@ -77,11 +78,14 @@ void CANReceiveTask(void *)
 
 void ARTask(void *)
 {
+    
+    
     while (true)
     {
         // For test use
-
-        vTaskDelay(10);
+        
+        ARControl::run();
+        vTaskDelay(1);
     }
 }
 
@@ -99,8 +103,8 @@ void startUserTasks()
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
     
-    xTaskCreateStatic(
-        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
+    // xTaskCreateStatic(
+    //     motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,

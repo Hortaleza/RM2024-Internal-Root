@@ -3,9 +3,9 @@
 #if IS_AR
 namespace ARControl
 {
-    uint16_t A0PIN = GPIO_PIN_6;
-uint16_t LPIN = GPIO_PIN_7;
+    
 uint16_t RPIN = GPIO_PIN_6;
+uint16_t LPIN = GPIO_PIN_7;
 static volatile bool status = 0;
 
 
@@ -24,6 +24,7 @@ static Control::PID motorPID[2] = {
 // id of left motor is 1, right is 2
 void updateStatus()
 {
+
     Lstatus = HAL_GPIO_ReadPin(GPIOA, LPIN);
     Rstatus = HAL_GPIO_ReadPin(GPIOA, RPIN);
    
