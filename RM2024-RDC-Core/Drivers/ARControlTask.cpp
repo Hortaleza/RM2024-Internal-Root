@@ -15,7 +15,7 @@ float Kp                        = 5;
 float Ki                        = 0;
 float Kd                        = 0;
 
-int RPM = 7500;
+int RPM = 3000;
 int Lstatus = 0;
 int Rstatus = 0;
 static Control::PID motorPID[2] = {
