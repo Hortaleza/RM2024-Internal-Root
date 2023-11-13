@@ -16,10 +16,9 @@
 #include "main.h"
 #include "task.h"  // Include task
 #include "HCSR04.hpp" 
-#include "MG996R.hpp"
+// #include "MG996R.hpp"
 #include "TRControlTask.hpp"
 #include "ARControlTask.hpp"
-#include "LineTracker.hpp"
 
 
 /*Allocate the stack for our PID task*/
@@ -78,7 +77,6 @@ void ARTask(void *)
     {
         // For test use
 
-        LineTracker::updateStatus();
         vTaskDelay(10);
     }
 }
