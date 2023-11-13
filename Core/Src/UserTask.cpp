@@ -15,6 +15,8 @@
 #include "PID.hpp"     // Include PID
 #include "main.h"
 #include "task.h"  // Include task
+#include "HCSR04.hpp" 
+#include "MG996R.hpp"
 #include "TRControlTask.hpp"
 #include "ARControlTask.hpp"
 #include "LineTracker.hpp"
@@ -24,11 +26,15 @@
 StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
 StackType_t uxARTaskStack[256];
+StackType_t uxUltraSoundTaskStack[256];
 
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
+StaticTask_t xUltraSoundTaskTCB;
+
+uint16_t distance = 0;
 
 /**
  * @todo Show your control outcome of the M3508 motor as follows
@@ -44,6 +50,15 @@ void motorTask(void *)
     }
 }
 
+void ultraSoundTask(void *)
+{
+    // HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    while (true)
+    {
+        distance = HCSR04::HCSR04_Read();
+        vTaskDelay(1);  // Delay and block the task for 1ms.
+    }
+}
 
 void CANReceiveTask(void *)
 {
@@ -89,6 +104,14 @@ void startUserTasks()
                       &xReceiveTaskTCB);
     xTaskCreateStatic(
         ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
+    xTaskCreateStatic(
+        ultraSoundTask,
+        "ultraSoundTask",
+        256,
+        NULL,
+        1,
+        uxUltraSoundTaskStack,
+        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 
     /**
      * @todo Add your own task here
