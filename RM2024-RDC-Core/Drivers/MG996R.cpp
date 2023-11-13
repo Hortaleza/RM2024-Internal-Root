@@ -4,10 +4,13 @@
 namespace MG996R
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   #include "gpio.h"
   #include "tim.h"
   #include "stm32f1xx_hal.h"
 =======
+=======
+>>>>>>> 2dc8ba3c20192a9349b384437a86d56d104f4548
     #include "gpio.h"
     #include "tim.h"
     #include "stm32f1xx_hal.h"
