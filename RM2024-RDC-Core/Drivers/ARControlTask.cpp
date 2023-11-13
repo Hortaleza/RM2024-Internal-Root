@@ -27,7 +27,7 @@ void updateStatus()
     Lstatus = HAL_GPIO_ReadPin(GPIOA, LPIN);
     Rstatus = HAL_GPIO_ReadPin(GPIOA, RPIN);
    
-    // Black: status = 0; White status = 1;
+    // Black: status = 0; White: status = 1;
 }
 
 void forward(){
