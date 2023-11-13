@@ -26,7 +26,7 @@ namespace DJIMotor
 {
 const uint16_t MAX_SIZE = 16384;
 const float MAX_CURRENT = 20000.0f;
-const int16_t MAX_RPM   = 5000;
+const int16_t MAX_RPM   = 10000;
 
 extern uint8_t rxData[8];
 

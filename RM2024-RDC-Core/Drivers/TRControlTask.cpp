@@ -35,7 +35,7 @@ const float Kp_aut = 12;
 const float Ki_aut = 0.5;
 const float Kd_aut = 45;
 
-float speedARM = 0.002;
+float speedARM = 1;
 
 static Control::PID autoPID = {Kp_aut, Ki_aut, Kd_aut};
 
@@ -72,7 +72,7 @@ void wholeTRControl(int delay)
     if (new_right_mode != right_mode || new_left_mode != left_mode)
     {
         // Do not clear motorPID!
-
+        
         // Clear armPID
         armPID.clear();
 
@@ -219,7 +219,7 @@ void runArmMode(float speed, int delay)
     targetRPM[ARM] = targetRatioARM * DJIMotor::MAX_RPM * speedARM;
     currentRPM[ARM] = DJIMotor::motorset[ARM].getRPM();
     DJIMotor::motorset[ARM].setCurrent(
-        motorPID[ARM].update(targetRPM[ARM], currentRPM[ARM], delay));
+        armPID.update(targetRPM[ARM], currentRPM[ARM], delay));
 
 
 
