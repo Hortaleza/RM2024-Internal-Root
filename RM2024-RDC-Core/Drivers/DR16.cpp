@@ -26,14 +26,13 @@ const RcData *getRcData() { return &rcData; }
 RcData rcData = {};
 UniformedData uniformed = {};
 
-bool ifContinue = true;
 bool connected  = false;
 
 uint8_t rxBuffer[DATASIZE];
 
 uint32_t lastReceiveTick = HAL_GetTick();
 
-char strBuffer[100];
+// char strBuffer[100];
 
 // char* getStatus() {
 //     memset(strBuffer, 0, 100 * sizeof(char));

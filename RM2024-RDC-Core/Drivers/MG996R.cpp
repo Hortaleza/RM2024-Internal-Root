@@ -3,7 +3,7 @@
 
 namespace MG996R
 {
-    #include "gpio.h"S
+    #include "gpio.h"
     #include "tim.h"
     #include "stm32f1xx_hal.h"
 

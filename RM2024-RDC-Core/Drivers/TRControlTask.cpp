@@ -230,7 +230,7 @@ void runAutoMode(int delay)
 {
     // must be completely auto control
 
-    // @todo: If arriving at the destination stop
+    // @todo: If arriving at the destination, stop
     if (0)
     {
 
@@ -257,8 +257,7 @@ void runAutoMode(int delay)
             motorPID[_].update(targetRPM[i], currentRPM[i], delay));
     }
 
-    DJIMotor::motorset
-        .transmit();  // Transmit the data to the motor in a package
+    DJIMotor::motorset.transmit();  // Transmit the data to the motor in a package
 }
 
 }  // namespace TRControl
