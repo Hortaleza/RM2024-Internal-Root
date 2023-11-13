@@ -26,14 +26,13 @@ const RcData *getRcData() { return &rcData; }
 RcData rcData = {};
 UniformedData uniformed = {};
 
-bool ifContinue = true;
 bool connected  = false;
 
 uint8_t rxBuffer[DATASIZE];
 
 uint32_t lastReceiveTick = HAL_GetTick();
 
-char strBuffer[100];
+// char strBuffer[100];
 
 // char* getStatus() {
 //     memset(strBuffer, 0, 100 * sizeof(char));
@@ -123,6 +122,7 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
     }
 
     // Update uniformed data
+
     uniformed.channel0 = 2 * (double(rcData.channel0) - DR16::RANGE_DEFAULT) /
                          (DR16::RANGE_MAX - DR16::RANGE_MIN);
     uniformed.channel1 = 2 * (double(rcData.channel1) - DR16::RANGE_DEFAULT) /

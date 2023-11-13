@@ -25,10 +25,11 @@
 
 namespace TRControl
 {
-    
-void WholeTRControl(int delay);
+
+void wholeTRControl(int delay);
 void runNormalMode(float speed, int delay);
 void runArmMode(float speed, int delay);
+void runAutoMode(int delay);
 
 } // namespace TRControl
 

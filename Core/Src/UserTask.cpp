@@ -16,7 +16,7 @@
 #include "main.h"
 #include "task.h"  // Include task
 #include "HCSR04.hpp" 
-// #include "MG996R.hpp"
+#include "MG996R.hpp"
 #include "TRControlTask.hpp"
 #include "ARControlTask.hpp"
 
@@ -44,18 +44,22 @@ void motorTask(void *)
     int delay = 1;
     while (true)
     {
-        TRControl::WholeTRControl(delay);
+        TRControl::wholeTRControl(delay);
         vTaskDelay(delay);  // Delay and block the task for 1ms.
     }
 }
 
 void ultraSoundTask(void *)
 {
-    // HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+    HAL_TIM_Base_Start(&htim3);
+    HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    MG996R::setServoAngle(0);
     while (true)
     {
+        // MG996R::setServoAngle(45);
         distance = HCSR04::HCSR04_Read();
-        vTaskDelay(1);  // Delay and block the task for 1ms.
+        vTaskDelay(10);  // Delay and block the task for 1ms.
     }
 }
 
@@ -90,9 +94,11 @@ void startUserTasks()
 {
     HAL_CAN_Start(&hcan);
 
+     HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+
     DJIMotor::init();  // Initalize the DJIMotor driver
-    
     DR16::init();      // Intialize the DR16 driver
+    
     xTaskCreateStatic(
         motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
@@ -102,16 +108,16 @@ void startUserTasks()
                       1,
                       uxReceiveTaskStack,
                       &xReceiveTaskTCB);
-    xTaskCreateStatic(
-        ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
-    xTaskCreateStatic(
-        ultraSoundTask,
-        "ultraSoundTask",
-        256,
-        NULL,
-        1,
-        uxUltraSoundTaskStack,
-        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+    // xTaskCreateStatic(
+    //     ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
+    // xTaskCreateStatic(
+    //     ultraSoundTask,
+    //     "ultraSoundTask",
+    //     256,
+    //     NULL,
+    //     1,
+    //     uxUltraSoundTaskStack,
+    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 
     /**
      * @todo Add your own task here

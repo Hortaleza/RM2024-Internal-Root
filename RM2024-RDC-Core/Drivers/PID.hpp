@@ -37,7 +37,7 @@ class PID
      * @param measurement   The feedback value
      * @param dt            The time interval between two updates
      */
-    float update(float target, float measurement, float dt = 0.001f);
+    float update(float target, float measurement, float dt = 1);
 
     /*===================*/
     // Your self-defined functions begin here

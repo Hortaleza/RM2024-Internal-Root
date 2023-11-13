@@ -14,7 +14,7 @@ namespace HCSR04
 
     uint16_t HCSR04_Read(void);
 
-    // void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
+    void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 
 }
 
