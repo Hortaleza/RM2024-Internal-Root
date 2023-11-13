@@ -78,8 +78,6 @@ void CANReceiveTask(void *)
 
 void ARTask(void *)
 {
-    
-    
     while (true)
     {
         // For test use
@@ -98,7 +96,7 @@ void startUserTasks()
 {
     HAL_CAN_Start(&hcan);
 
-     HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
