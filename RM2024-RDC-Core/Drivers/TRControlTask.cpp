@@ -15,34 +15,32 @@ int right_mode = 2;
 
 // PID
 const float Kp = 12;
-const float Ki = 0;
+const float Ki = 0.5;
 const float Kd = 45;
 
 static Control::PID motorPID[4] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
 };
 
-const float Kp_arm = 10;
-const float Ki_arm = 0;
-const float Kd_arm = 0;
+const float Kp_arm = 12;
+const float Ki_arm = 0.5;
+const float Kd_arm = 45;
 
 static Control::PID armPID = {Kp_arm, Ki_arm, Kd_arm};
 
 
 // Auto mode
 
-const float Kp_aut = 10;
-const float Ki_aut = 0;
-const float Kd_aut = 0;
+const float Kp_aut = 12;
+const float Ki_aut = 0.5;
+const float Kd_aut = 45;
+
+float speedARM = 0.002;
 
 static Control::PID autoPID = {Kp_aut, Ki_aut, Kd_aut};
 
-float target_distance = 12; // To be determined when mode is switched 
-
-
-
-
-
+float target_distance;
+  // To be determined when mode is switched
 
 void wholeTRControl(int delay)
 {
@@ -73,11 +71,7 @@ void wholeTRControl(int delay)
     /* ===== If switched, re-initialize all PID modules ===== */
     if (new_right_mode != right_mode || new_left_mode != left_mode)
     {
-        // Clear motorPID
-        for (int i = 0; i < 4; i++)
-        {
-            motorPID[i].clear();
-        }
+        // Do not clear motorPID!
 
         // Clear armPID
         armPID.clear();
@@ -221,7 +215,6 @@ void runArmMode(float speed, int delay)
     // Arm control
 
     double targetRatioARM = DR16::uniformed.channel3;
-    float speedARM = 0.002;
 
     targetRPM[ARM] = targetRatioARM * DJIMotor::MAX_RPM * speedARM;
     currentRPM[ARM] = DJIMotor::motorset[ARM].getRPM();
