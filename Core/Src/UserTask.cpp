@@ -52,13 +52,13 @@ void motorTask(void *)
 void ultraSoundTask(void *)
 {
     HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-    HAL_TIM_Base_Start(&htim3);
-    HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
-    MG996R::setServoAngle(0);
+    // HAL_TIM_Base_Start(&htim3);
+    // HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    MG996R::setServoAngle(45);
     while (true)
     {
-        // MG996R::setServoAngle(45);
-        distance = HCSR04::HCSR04_Read();
+        // MG996R::setServoAngle(130);
+        // distance = HCSR04::HCSR04_Read();
         vTaskDelay(10);  // Delay and block the task for 1ms.
     }
 }
