@@ -58,6 +58,9 @@
 // HCSR04
 #define USE_HCSR04 TRUE
 
+// MG996R
+#define MG996R TRUE
+
 // LineTracker
 #define USE_LINETRACKER TRUE
 

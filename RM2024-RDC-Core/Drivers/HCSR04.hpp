@@ -8,18 +8,14 @@
 #include "tim.h"
 #include "gpio.h"
 
-namespace SR04
+namespace HCSR04
 {
-#define TRIG_Pin GPIO_PIN_0
-#define TRIG_GPIO_Port GPIOA
-#define ECHO_Pin GPIO_PIN_1
-#define ECHO_GPIO_Port GPIOA
+    void delay_us(uint16_t time);
 
-void delay_us(uint16_t time);
+    uint16_t HCSR04_Read(void);
 
-uint16_t HCSR04_Read(void);
+    // void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 }
 
 #endif  
