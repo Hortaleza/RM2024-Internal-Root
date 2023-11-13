@@ -65,6 +65,6 @@
 #define USE_MG996R TRUE
 
 // HC06
-#define USE_HC06 TRUE
+#define USE_HC05 TRUE
 
     

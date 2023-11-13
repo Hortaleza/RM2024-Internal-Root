@@ -122,6 +122,7 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
     }
 
     // Update uniformed data
+
     uniformed.channel0 = 2 * (double(rcData.channel0) - DR16::RANGE_DEFAULT) /
                          (DR16::RANGE_MAX - DR16::RANGE_MIN);
     uniformed.channel1 = 2 * (double(rcData.channel1) - DR16::RANGE_DEFAULT) /

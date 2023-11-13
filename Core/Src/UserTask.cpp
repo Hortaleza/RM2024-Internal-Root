@@ -44,7 +44,7 @@ void motorTask(void *)
     int delay = 1;
     while (true)
     {
-        TRControl::WholeTRControl(delay);
+        TRControl::wholeTRControl(delay);
         vTaskDelay(delay);  // Delay and block the task for 1ms.
     }
 }
@@ -91,8 +91,8 @@ void startUserTasks()
     HAL_CAN_Start(&hcan);
 
     DJIMotor::init();  // Initalize the DJIMotor driver
-    
     DR16::init();      // Intialize the DR16 driver
+    
     xTaskCreateStatic(
         motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
@@ -102,16 +102,16 @@ void startUserTasks()
                       1,
                       uxReceiveTaskStack,
                       &xReceiveTaskTCB);
-    xTaskCreateStatic(
-        ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
-    xTaskCreateStatic(
-        ultraSoundTask,
-        "ultraSoundTask",
-        256,
-        NULL,
-        1,
-        uxUltraSoundTaskStack,
-        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+    // xTaskCreateStatic(
+    //     ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
+    // xTaskCreateStatic(
+    //     ultraSoundTask,
+    //     "ultraSoundTask",
+    //     256,
+    //     NULL,
+    //     1,
+    //     uxUltraSoundTaskStack,
+    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 
     /**
      * @todo Add your own task here

@@ -1,18 +1,18 @@
 #pragma once
 #include "AppConfig.h"
 
-#if USE_HC06
+#if USE_HC05
 
 #include "main.h"
 #include "stdint.h"
 #include "usart.h"
 
-namespace HC06
+namespace HC05
 {
 
 const int DATASIZE = 1;
 
-} // namespace HC06
+} // namespace HC05
 
 
 #endif

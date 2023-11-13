@@ -178,13 +178,14 @@ void receiveTaskInit()
 
 void receiveTaskLoop(CAN_RxHeaderTypeDef *rxheader, MotorSet& ms)
 {
-    while (HAL_CAN_GetRxMessage(
-               &hcan, CAN_RX_FIFO0, rxheader, rxData) != HAL_OK)
-        ;
-    int canID = (*rxheader).StdId - 0x200;
-    if (!(canID > 0 && canID < 9))
-        return;
-    ms[canID - 1].update();
+    while (HAL_CAN_GetRxFifoFillLevel(&hcan, CAN_RX_FIFO0) != 0)
+    {
+        HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, rxheader, rxData);
+        int canID = (*rxheader).StdId - 0x200;
+        if (!(canID > 0 && canID < 9))
+            continue;
+        ms[canID - 1].update();
+    }
 }
 
 void init() { receiveTaskInit(); }

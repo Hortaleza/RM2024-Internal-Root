@@ -1,7 +1,7 @@
-#include "HC06.hpp"
+#include "HC05.hpp"
 
-#if USE_HC06
-namespace HC06
+#if USE_HC05
+namespace HC05
 {
 
 bool has_received = false;

@@ -15,25 +15,25 @@ int right_mode = 2;
 
 // PID
 const float Kp = 12;
-const float Ki  = 0.6;
-const float Kd   = 10;
+const float Ki = 0;
+const float Kd = 45;
 
 static Control::PID motorPID[4] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}, {Kp, Ki, Kd}
 };
 
-const float Kp_arm = 12;
-const float Ki_arm = 0.6;
-const float Kd_arm = 10;
+const float Kp_arm = 10;
+const float Ki_arm = 0;
+const float Kd_arm = 0;
 
 static Control::PID armPID = {Kp_arm, Ki_arm, Kd_arm};
 
 
 // Auto mode
 
-const float Kp_aut = 12;
-const float Ki_aut = 0.6;
-const float Kd_aut = 10;
+const float Kp_aut = 10;
+const float Ki_aut = 0;
+const float Kd_aut = 0;
 
 static Control::PID autoPID = {Kp_aut, Ki_aut, Kd_aut};
 
@@ -44,7 +44,7 @@ float target_distance = 12; // To be determined when mode is switched
 
 
 
-void WholeTRControl(int delay)
+void wholeTRControl(int delay)
 {
     // Check if connected
 
@@ -56,6 +56,13 @@ void WholeTRControl(int delay)
         {
             targetRPM[i] = 0;
         }
+        // Simply set all current to zero instead of using PID to control to zero
+        for (int i = 0; i < 8; i++)
+        {
+            currentRPM[i] = DJIMotor::motorset[i].getRPM();
+            DJIMotor::motorset[i].setCurrent(0);
+        }
+        DJIMotor::motorset.transmit();
         return;
     }
 
@@ -71,7 +78,6 @@ void WholeTRControl(int delay)
         {
             motorPID[i].clear();
         }
-        armPID.clear();
 
         // Clear armPID
         armPID.clear();
@@ -119,6 +125,7 @@ inline double signedSquare(double a) { return (a > 0) ? a * a : -a * a; }
 
 void runNormalMode(float speed, int delay)
 {
+
     /* ===== Wheels control ===== */
 
     // Calculate RPM using Mecanum wheels algorithm
