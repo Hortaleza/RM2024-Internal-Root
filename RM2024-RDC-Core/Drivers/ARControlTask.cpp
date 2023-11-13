@@ -32,17 +32,14 @@ void updateStatus()
 }
 
 void forward(){
-    for (int i = 0; i < 2; i++)
-    {
-    
-        int targetRPM = RPM;
+    int targetRPM0  = RPM;
+    int targetRPM1  = -RPM;
     int currentRPML = DJIMotor::motorset[0].getRPM();
-        DJIMotor::motorset[0].setCurrent(
-            motorPID[0].update(targetRPM, currentRPML, 1));
+    DJIMotor::motorset[0].setCurrent(
+        motorPID[0].update(targetRPM0, currentRPML, 1));
     int currentRPMR = DJIMotor::motorset[1].getRPM();
-        DJIMotor::motorset[1].setCurrent(
-            motorPID[1].update(-targetRPM, currentRPMR, 1));
-    }
+    DJIMotor::motorset[1].setCurrent(
+        motorPID[1].update(targetRPM1, currentRPMR, 1));
 }
 
 void left(){
