@@ -10,11 +10,11 @@
 
 namespace HCSR04
 {
-    void delay_us(uint16_t time);
+    // void delay_us(uint16_t time);
 
     uint16_t HCSR04_Read(void);
 
-    void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
+    void IC_CaptureCallback(TIM_HandleTypeDef *htim);
 
 }
 
