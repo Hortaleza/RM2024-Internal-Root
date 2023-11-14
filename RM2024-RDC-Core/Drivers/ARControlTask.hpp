@@ -9,10 +9,13 @@
 namespace ARControl
 {
 void updateStatus();
-void forward();
-void left();
-void right();
+void forward(int);
+void left(int);
+void right(int);
 void stop();
 void run();
+void test();
+void turnFixedDistance(uint32_t, int);
+void turn (uint32_t);
 }
 #endif
