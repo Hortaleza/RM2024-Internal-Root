@@ -27,13 +27,13 @@ StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
 StackType_t uxARTaskStack[512];
 StackType_t uxUltraSoundTaskStack[256];
-
+StackType_t uxBTreceiveStack[256];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
 StaticTask_t xUltraSoundTaskTCB;
-
+StaticTask_t xBTreceiveTCB;
 uint16_t distance = 0;
 
 /**
@@ -84,6 +84,17 @@ void ARTask(void *)
     }
 }
 
+void BTreceive(void *)
+{
+    while (true)
+    {
+        // For test use
+        
+        HC05::init();
+        vTaskDelay(1);
+    }
+}
+
 /**
  * @brief Intialize all the drivers and add task to the scheduler
  * @todo  Add your own task in this file
@@ -98,8 +109,8 @@ void startUserTasks()
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
     
-    // xTaskCreateStatic(
-    //     motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
+    xTaskCreateStatic(
+        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,
@@ -117,7 +128,8 @@ void startUserTasks()
         1,
         uxUltraSoundTaskStack,
         &xUltraSoundTaskTCB);  // Add the main task into the scheduler
-
+xTaskCreateStatic(
+         BTreceive, "BTreceive", 256, NULL, 1, uxBTreceiveStack, &xBTreceiveTCB);
     /**
      * @todo Add your own task here
      */
