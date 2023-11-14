@@ -41,6 +41,7 @@ class DJIMotor
 
     void setOutput(int16_t output);
     int setCurrent(float current);
+    int16_t getPosition();
     int16_t getRPM();
     uint8_t getTemperature();
     int16_t getCurrent();
