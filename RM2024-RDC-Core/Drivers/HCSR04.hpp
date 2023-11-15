@@ -10,7 +10,11 @@
 
 namespace HCSR04
 {
-    // void delay_us(uint16_t time);
+    void hcsr04_init();
+    
+    void delay_us(uint16_t time);
+
+    void SendSingnal();
 
     uint16_t HCSR04_Read(void);
 
