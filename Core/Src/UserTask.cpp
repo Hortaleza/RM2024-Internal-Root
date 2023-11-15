@@ -139,8 +139,6 @@ void startUserTasks()
     
     xTaskCreateStatic(
         motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
-    xTaskCreateStatic(
-        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,
@@ -148,25 +146,25 @@ void startUserTasks()
                       1,
                       uxReceiveTaskStack,
                       &xReceiveTaskTCB);
-    xTaskCreateStatic(gearMotorTask,
-                      "gearMotorTask",
-                      256,
-                      NULL,
-                      1,
-                      uxGearMotorTaskStack,
-                      &xGearMotorTaskTCB);
+    // xTaskCreateStatic(gearMotorTask,
+    //                   "gearMotorTask",
+    //                   256,
+    //                   NULL,
+    //                   1,
+    //                   uxGearMotorTaskStack,
+    //                   &xGearMotorTaskTCB);
     // xTaskCreateStatic(
     //     ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
-    xTaskCreateStatic(
-        ultraSoundTask,
-        "ultraSoundTask",
-        256,
-        NULL,
-        1,
-        uxUltraSoundTaskStack,
-        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
-xTaskCreateStatic(
-         BTreceive, "BTreceive", 256, NULL, 1, uxBTreceiveStack, &xBTreceiveTCB);
+    // xTaskCreateStatic(
+    //     ultraSoundTask,
+    //     "ultraSoundTask",
+    //     256,
+    //     NULL,
+    //     1,
+    //     uxUltraSoundTaskStack,
+    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+    // xTaskCreateStatic(
+    //     BTreceive, "BTreceive", 256, NULL, 1, uxBTreceiveStack, &xBTreceiveTCB);
     /**
      * @todo Add your own task here
      */
