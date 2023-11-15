@@ -57,10 +57,10 @@ void MX_GPIO_Init(void)
                           |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = SW_Pin;
+  GPIO_InitStruct.Pin = TRIG2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SW_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(TRIG2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = TRIG_Pin;

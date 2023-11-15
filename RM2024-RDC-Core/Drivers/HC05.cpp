@@ -42,7 +42,7 @@ void ErrorCallback(UART_HandleTypeDef *huart)
 {
     clearMemory();
     HAL_UART_Abort_IT(huart);
-    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 18);
+    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 1);
 }
 
 // Normal Callback Function
@@ -73,7 +73,7 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
 
 
     // Repeat
-    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 18);
+    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 1);
 }
 
 /*================================================================================*/
@@ -81,7 +81,7 @@ void init()
 {
     HAL_UART_RegisterRxEventCallback(&huart3, rxEventCallback);
     HAL_UART_RegisterCallback(&huart3, HAL_UART_ERROR_CB_ID, ErrorCallback);
-    HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuffer, 18);
+    HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuffer, 1);
 }
 } // namespace HC06
 

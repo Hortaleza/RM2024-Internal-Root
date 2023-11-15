@@ -6,34 +6,56 @@ namespace HCSR04
   #include "tim.h"
   #include "gpio.h"
   #include "stm32f1xx_hal.h"
-  #include "stm32f1xx_hal_tim.h"
   
   uint8_t IS_FIRST_CAPTURED = 0;
   uint32_t IC_Val1 = 0;
   uint32_t IC_Val2 = 0;
   uint32_t Difference = 0;
-  uint16_t Distance = 5;
-  uint16_t currenttime = 1;
-  uint8_t IS_Calculated = 0;
+  float Distance = 0;
+
+  void hcsr04_init()
+  {
+    HAL_TIM_RegisterCallback(&htim3, HAL_TIM_IC_CAPTURE_CB_ID, IC_CaptureCallback);
+    HAL_TIM_Base_Start(&htim3);
+    // HAL_TIM_Base_Start(&htim1);
+    HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+    // __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 15);
+  }
 
   void delay_us(uint16_t time)
   {
     __HAL_TIM_SET_COUNTER(&htim3,0);
     while(__HAL_TIM_GET_COUNTER(&htim3) < time);
+    // while( time -- );
   }
 
-  uint16_t HCSR04_Read(void)
+  void SendSingnal_1()
   {
     HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_RESET);
     delay_us(2);
     HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_SET);
-    delay_us(15); // 10us
-    HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_RESET);    
-    __HAL_TIM_ENABLE_IT(&htim3,TIM_IT_CC1);   
+    delay_us(20); // 10us
+    HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_RESET);
+    __HAL_TIM_ENABLE_IT(&htim3,TIM_IT_CC1);  
+  }
+
+  void SendSingnal_2()
+  {
+    HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_RESET);
+    delay_us(2);
+    HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_SET);
+    delay_us(20); // 10us
+    HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_RESET);
+    __HAL_TIM_ENABLE_IT(&htim3,TIM_IT_CC1);  
+  }
+
+  float HCSR04_Read(void)
+  {
     return Distance;
   }
 
-  void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+  void IC_CaptureCallback(TIM_HandleTypeDef *htim) 
   {
     if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) 
     {
@@ -66,4 +88,4 @@ namespace HCSR04
   }
 }
 
-#endif 
+#endif

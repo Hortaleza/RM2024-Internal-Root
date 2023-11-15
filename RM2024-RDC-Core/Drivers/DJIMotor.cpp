@@ -70,6 +70,11 @@ int16_t DJIMotor::getRPM()
     return rpm;
 }
 
+int16_t DJIMotor::getPosition()
+{
+    return position;
+}
+
 uint8_t DJIMotor::getTemperature()
 {
     return temperature;
