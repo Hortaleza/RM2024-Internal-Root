@@ -34,7 +34,8 @@ StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
 StaticTask_t xUltraSoundTaskTCB;
 StaticTask_t xBTreceiveTCB;
-uint16_t distance = 0;
+uint16_t distance1 = 0;
+uint16_t distance2 = 0;
 
 /**
  * @todo Show your control outcome of the M3508 motor as follows
@@ -57,9 +58,12 @@ void ultraSoundTask(void *)
     while (true)
     {
         MG996R::setServoAngle(180);
-        HCSR04::SendSingnal();
+        HCSR04::SendSingnal_1();
         vTaskDelay(50);
-        distance = HCSR04::HCSR04_Read();
+        distance1 = HCSR04::HCSR04_Read();
+        HCSR04::SendSingnal_2();
+        vTaskDelay(50);
+        distance2 = HCSR04::HCSR04_Read();
         vTaskDelay(10);  // Delay and block the task for 1ms.
     }
 }
