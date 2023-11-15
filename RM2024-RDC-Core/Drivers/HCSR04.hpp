@@ -18,7 +18,7 @@ namespace HCSR04
 
     void SendSingnal_2();
 
-    uint16_t HCSR04_Read(void);
+    float HCSR04_Read(void);
 
     void IC_CaptureCallback(TIM_HandleTypeDef *htim);
 

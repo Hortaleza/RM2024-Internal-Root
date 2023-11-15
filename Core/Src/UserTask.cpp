@@ -34,8 +34,8 @@ StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
 StaticTask_t xUltraSoundTaskTCB;
 StaticTask_t xBTreceiveTCB;
-uint16_t distance1 = 0;
-uint16_t distance2 = 0;
+float distance1 = 0;
+float distance2 = 0;
 
 /**
  * @todo Show your control outcome of the M3508 motor as follows

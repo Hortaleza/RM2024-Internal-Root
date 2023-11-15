@@ -11,7 +11,7 @@ namespace HCSR04
   uint32_t IC_Val1 = 0;
   uint32_t IC_Val2 = 0;
   uint32_t Difference = 0;
-  uint16_t Distance = 0;
+  float Distance = 0;
 
   void hcsr04_init()
   {
@@ -33,9 +33,9 @@ namespace HCSR04
   void SendSingnal_1()
   {
     HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_RESET);
-    delay_us(2,&htim3);
+    delay_us(2);
     HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_SET);
-    delay_us(20,&htim3); // 10us
+    delay_us(20); // 10us
     HAL_GPIO_WritePin(TRIG_GPIO_Port,TRIG_Pin,GPIO_PIN_RESET);
     __HAL_TIM_ENABLE_IT(&htim3,TIM_IT_CC1);  
   }
@@ -47,10 +47,10 @@ namespace HCSR04
     HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_SET);
     delay_us(20); // 10us
     HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_RESET);
-    __HAL_TIM_ENABLE_IT(&htim1,TIM_IT_CC1);  
+    __HAL_TIM_ENABLE_IT(&htim3,TIM_IT_CC1);  
   }
 
-  uint16_t HCSR04_Read(void)
+  float HCSR04_Read(void)
   {
     return Distance;
   }
