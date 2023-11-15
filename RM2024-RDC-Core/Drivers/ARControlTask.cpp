@@ -21,9 +21,11 @@ int Lstatus = 0;
 int Rstatus = 0;
 int status = 1;
 int status2 = 1;
+int allowToProceed = 0;
+int reachBlackLine = 0;
 uint32_t startTime = 0;
 
-uint32_t stopTime = 1000;
+//uint32_t stopTime = 1000;
 static Control::PID motorPID[2] = {
     {Kp, Ki, Kd}, {Kp, Ki, Kd}
 };
@@ -31,8 +33,8 @@ static Control::PID motorPID[2] = {
 void updateStatus()
 {
 
-    Lstatus = HAL_GPIO_ReadPin(GPIOA, LPIN);
-    Rstatus = HAL_GPIO_ReadPin(GPIOA, RPIN);
+    // Lstatus = HAL_GPIO_ReadPin(GPIOA, LPIN);
+    // Rstatus = HAL_GPIO_ReadPin(GPIOA, RPIN);
    
     // Black: status = 0; White: status = 1;
 }
@@ -85,11 +87,43 @@ void test(){
 
 }
 
+void turnLeft(float degree){
+    // if (status){
+    //     startTime = HAL_GetTick(); 
+    //     status = 0;
+    // }
+    //     if ((HAL_GetTick() - startTime) < runTime) {
+            
+    //         right(3000);
+    //         DJIMotor::motorset.transmit();
+    //     } else if ((HAL_GetTick() - startTime) < (runTime + stopTime)) {
+            
+    //         stop();
+    //         DJIMotor::motorset.transmit();
+    //     } else {
+            
+    //         startTime = HAL_GetTick();
+    //     }
+
+        
+    
+
+}
+
 void run(){
     updateStatus();
+    if (reachBlackLine==0){
     if ( Lstatus && Rstatus ) {
+        uint32_t stopTime = HAL_GetTick()+10000;
+        //while (HAL_GetTick()<stopTime){
         stop();
         DJIMotor::motorset.transmit();
+        //}
+        // for (int i = 0; i<99999; i++){
+        //      stop();
+        // DJIMotor::motorset.transmit();
+        // }
+        reachBlackLine = 0;
       }
     
     if ( Lstatus && !Rstatus ) {
@@ -106,43 +140,92 @@ void run(){
         forward(RunRPM);
         DJIMotor::motorset.transmit();
       }
+    }
+    //27.6 9.74
+    else if (reachBlackLine && allowToProceed){
+        for (int i=0; i<2; i++){
+            if (1){
+                uint32_t stopTime = HAL_GetTick()+214.66667;
+                while (HAL_GetTick()<stopTime){
+                left(3000);
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+100){
+                stop(); 
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+200){
+                forward(3000);
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+300){
+                stop(); 
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+400){
+                forward(-3000);
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+500){
+                stop(); 
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+714.66667){
+                right(3000);
+                DJIMotor::motorset.transmit();
+                }
+                while (HAL_GetTick()<stopTime+814.6667){
+                stop(); 
+                DJIMotor::motorset.transmit();
+                }
+                
+
+
+            }
+            else if (0){
+                
+                //turnLeft(9.74);
+            }
+        }
+        allowToProceed = 0;
+    }
 }
 void turnFixedDistance(uint32_t runTime, int speed){
-    if (status2){
-        startTime = HAL_GetTick(); 
-        status2 = 0;
-    }
-        if ((HAL_GetTick() - startTime) < runTime) {
+    // if (status2){
+    //     startTime = HAL_GetTick(); 
+    //     status2 = 0;
+    // }
+    //     if ((HAL_GetTick() - startTime) < runTime) {
             
-            forward(speed);
-            DJIMotor::motorset.transmit();
-        } else if ((HAL_GetTick() - startTime) < (runTime + stopTime)) {
+    //         forward(speed);
+    //         DJIMotor::motorset.transmit();
+    //     } else if ((HAL_GetTick() - startTime) < (runTime + stopTime)) {
             
-            stop();
-            DJIMotor::motorset.transmit();
-        } else {
+    //         stop();
+    //         DJIMotor::motorset.transmit();
+    //     } else {
             
-            startTime = HAL_GetTick();
-        }
+    //         startTime = HAL_GetTick();
+    //     }
 
 }
 void turn(uint32_t runTime){
-    if (status){
-        startTime = HAL_GetTick(); 
-        status = 0;
-    }
-        if ((HAL_GetTick() - startTime) < runTime) {
+    // if (status){
+    //     startTime = HAL_GetTick(); 
+    //     status = 0;
+    // }
+    //     if ((HAL_GetTick() - startTime) < runTime) {
             
-            right(3000);
-            DJIMotor::motorset.transmit();
-        } else if ((HAL_GetTick() - startTime) < (runTime + stopTime)) {
+    //         right(3000);
+    //         DJIMotor::motorset.transmit();
+    //     } else if ((HAL_GetTick() - startTime) < (runTime + stopTime)) {
             
-            stop();
-            DJIMotor::motorset.transmit();
-        } else {
+    //         stop();
+    //         DJIMotor::motorset.transmit();
+    //     } else {
             
-            startTime = HAL_GetTick();
-        }
+    //         startTime = HAL_GetTick();
+    //     }
 
         
     

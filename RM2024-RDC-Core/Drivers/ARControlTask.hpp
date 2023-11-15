@@ -1,6 +1,6 @@
 #pragma once
 #include "AppConfig.h"
-
+#include "HC05.hpp"
 #if IS_AR
 
 #include "main.h"

@@ -11,6 +11,7 @@ bool connected  = false; // needs updating
 
 uint8_t rxBuffer[DATASIZE];
 
+
 uint32_t lastReceiveTick = HAL_GetTick();
 
 void clearMemory()
