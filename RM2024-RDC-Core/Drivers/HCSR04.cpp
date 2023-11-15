@@ -16,20 +16,17 @@ namespace HCSR04
   void hcsr04_init()
   {
     HAL_TIM_RegisterCallback(&htim3, HAL_TIM_IC_CAPTURE_CB_ID, IC_CaptureCallback);
-    HAL_TIM_RegisterCallback(&htim1, HAL_TIM_IC_CAPTURE_CB_ID, IC_CaptureCallback);
     HAL_TIM_Base_Start(&htim3);
-    HAL_TIM_Base_Start(&htim1);
     // HAL_TIM_Base_Start(&htim1);
     HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
-    HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);
     // HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
     // __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 15);
   }
 
-  void delay_us(uint16_t time,TIM_HandleTypeDef *htim)
+  void delay_us(uint16_t time)
   {
-    __HAL_TIM_SET_COUNTER(htim,0);
-    while(__HAL_TIM_GET_COUNTER(htim) < time);
+    __HAL_TIM_SET_COUNTER(&htim3,0);
+    while(__HAL_TIM_GET_COUNTER(&htim3) < time);
     // while( time -- );
   }
 
@@ -46,9 +43,9 @@ namespace HCSR04
   void SendSingnal_2()
   {
     HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_RESET);
-    delay_us(2,&htim1);
+    delay_us(2);
     HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_SET);
-    delay_us(20,&htim1); // 10us
+    delay_us(20); // 10us
     HAL_GPIO_WritePin(TRIG2_GPIO_Port,TRIG2_Pin,GPIO_PIN_RESET);
     __HAL_TIM_ENABLE_IT(&htim1,TIM_IT_CC1);  
   }

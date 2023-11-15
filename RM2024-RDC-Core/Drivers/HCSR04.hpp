@@ -12,7 +12,7 @@ namespace HCSR04
 {
     void hcsr04_init();
     
-    void delay_us(uint16_t time,TIM_HandleTypeDef *htim);
+    void delay_us(uint16_t time);
 
     void SendSingnal_1();
 
