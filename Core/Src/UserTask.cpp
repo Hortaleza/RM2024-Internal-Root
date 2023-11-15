@@ -27,14 +27,18 @@ StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
 StackType_t uxARTaskStack[512];
 StackType_t uxUltraSoundTaskStack[256];
+StackType_t uxGearMotorTaskStack[256];
 
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
 StaticTask_t xUltraSoundTaskTCB;
+StaticTask_t xGearMotorTaskTCB;
 
-uint16_t distance = 0;
+// uint16_t distance = 0;
+
+float dr16Test;
 
 /**
  * @todo Show your control outcome of the M3508 motor as follows
@@ -52,15 +56,26 @@ void motorTask(void *)
 
 void ultraSoundTask(void *)
 {
-    HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+
+    while (true)
+    {
+        vTaskDelay(1);  // Delay and block the task for 1ms.
+    }
+}
+
+void gearMotorTask(void *)
+{
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
     // HAL_TIM_Base_Start(&htim3);
     // HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
     // MG996R::setServoAngle(0);
+    int angle = 0;
     while (true)
     {
-        MG996R::setServoAngle(180);
+        MG996R::setServoAngle(angle);
+        angle = (angle + 20) % 180;
         // distance = HCSR04::HCSR04_Read();
-        vTaskDelay(10);  // Delay and block the task for 1ms.
+        vTaskDelay(100);  // Delay and block the task for 100ms.
     }
 }
 
@@ -71,6 +86,7 @@ void CANReceiveTask(void *)
 
     while (true)
     {
+        dr16Test = DR16::uniformed.channel1;
         DJIMotor::receiveTaskLoop(&rxheader, DJIMotor::motorset);
         vTaskDelay(1);
     }
@@ -101,8 +117,8 @@ void startUserTasks()
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
     
-    // xTaskCreateStatic(
-    //     motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
+    xTaskCreateStatic(
+        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,
@@ -110,8 +126,15 @@ void startUserTasks()
                       1,
                       uxReceiveTaskStack,
                       &xReceiveTaskTCB);
-    xTaskCreateStatic(
-        ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
+    xTaskCreateStatic(gearMotorTask,
+                      "gearMotorTask",
+                      256,
+                      NULL,
+                      1,
+                      uxGearMotorTaskStack,
+                      &xGearMotorTaskTCB);
+    // xTaskCreateStatic(
+    //     ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
     // xTaskCreateStatic(
     //     ultraSoundTask,
     //     "ultraSoundTask",

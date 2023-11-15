@@ -20,7 +20,7 @@
 #define BR 3
 #endif
 #ifndef ARM
-#define ARM 4
+#define ARM 5
 #endif
 
 namespace TRControl
