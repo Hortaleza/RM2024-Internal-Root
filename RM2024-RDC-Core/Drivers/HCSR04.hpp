@@ -10,9 +10,15 @@
 
 namespace HCSR04
 {
-    // void delay_us(uint16_t time);
+    void hcsr04_init();
+    
+    void delay_us(uint16_t time);
 
-    uint16_t HCSR04_Read(void);
+    void SendSingnal_1();
+
+    void SendSingnal_2();
+
+    float HCSR04_Read(void);
 
     void IC_CaptureCallback(TIM_HandleTypeDef *htim);
 
