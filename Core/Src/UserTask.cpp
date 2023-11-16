@@ -27,6 +27,7 @@ StackType_t uxPIDTaskStack[256];
 StackType_t uxReceiveTaskStack[256];
 StackType_t uxARTaskStack[512];
 StackType_t uxUltraSoundTaskStack[256];
+StackType_t uxGearMotorTaskStack[256];
 StackType_t uxBTreceiveStack[256];
 StackType_t uxARMotorStack[256];
 /*Declare the PCB for our PID task*/
@@ -34,6 +35,7 @@ StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
 StaticTask_t xUltraSoundTaskTCB;
+StaticTask_t xGearMotorTaskTCB;
 StaticTask_t xBTreceiveTCB;
 StaticTask_t xARMotorTCB;
 float distance1 = 0;
@@ -67,6 +69,22 @@ void ultraSoundTask(void *)
         vTaskDelay(50);
         distance2 = HCSR04::HCSR04_Read();
         vTaskDelay(10);  // Delay and block the task for 1ms.
+    }
+}
+
+void gearMotorTask(void *)
+{
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+    // HAL_TIM_Base_Start(&htim3);
+    // HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    // MG996R::setServoAngle(0);
+    int angle = 0;
+    while (true)
+    {
+        MG996R::setServoAngle(angle);
+        angle = (angle + 20) % 180;
+        // distance = HCSR04::HCSR04_Read();
+        vTaskDelay(100);  // Delay and block the task for 100ms.
     }
 }
 
@@ -128,8 +146,8 @@ void startUserTasks()
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
     
-    // xTaskCreateStatic(
-    //     motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
+    xTaskCreateStatic(
+        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,
@@ -141,14 +159,14 @@ void startUserTasks()
         ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
         xTaskCreateStatic(
         ARMotorTask, "ARMotorTask", 256, NULL, 1, uxARMotorStack, &xARMotorTCB);
-    // xTaskCreateStatic(
-    //     ultraSoundTask,
-    //     "ultraSoundTask",
-    //     256,
-    //     NULL,
-    //     1,
-    //     uxUltraSoundTaskStack,
-    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+    xTaskCreateStatic(
+        ultraSoundTask,
+        "ultraSoundTask",
+        256,
+        NULL,
+        1,
+        uxUltraSoundTaskStack,
+        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 xTaskCreateStatic(
          BTreceive, "BTreceive", 256, NULL, 1, uxBTreceiveStack, &xBTreceiveTCB);
     /**

@@ -43,6 +43,41 @@ namespace Control
 //     return this->output;  // You need to give your user the output for every update
 // }
 
+float PID::getAttemptedUpdate(float target, float measurement, float dt)
+{
+    // @todo: change the time unit to be 1ms
+    integral = 0;
+    float error    = target - measurement;  // Calculate the error
+                                      // if (abs(error) <=  200)
+    //{
+    if (output > maxoutput)
+    {
+        if (error < 0)
+        {
+            integral = error * dt;
+        }
+    }
+    else if (output < minoutput)
+    {
+        if (error > 0)
+        {
+            integral = error * dt;
+        }
+    }
+    else
+    {
+        integral = error * dt;
+    }
+    //}
+    float currentfilter  = a * previousfilter + (1 - a) * (error - lastError);
+    float previousfilter  = currentfilter;
+    float pOut            = Kp * error;   // Calculate the P term
+    float iOut = this->iOut + Ki * integral;           // Calculate the I term
+    float dOut = Kd * currentfilter / dt;   // Calculate the D term
+    float output = pOut + iOut + dOut;  // The output is the sum of all terms
+    return output;  // You need to give your user the output for every update
+}
+
 float PID::update(float target, float measurement, float dt)
 {
     // @todo: change the time unit to be 1ms
@@ -76,9 +111,6 @@ float PID::update(float target, float measurement, float dt)
     dOut = Kd * currentfilter/dt;   // Calculate the D term
     output = pOut + iOut + dOut ;  // The output is the sum of all terms
     lastError = error;     // Update the last error
-    /*=====================================================================*/
-    // Your implementation of the PID algorithm ends here
-    /*=====================================================================*/
     return this->output;  // You need to give your user the output for every update
 }
 

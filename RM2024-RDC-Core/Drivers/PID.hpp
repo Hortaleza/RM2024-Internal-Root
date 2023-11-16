@@ -38,7 +38,9 @@ class PID
      * @param dt            The time interval between two updates
      */
     float update(float target, float measurement, float dt = 1);
+    float getAttemptedUpdate(float target, float measurement, float dt);
 
+    float getOutput() { return output; }
     /*===================*/
     // Your self-defined functions begin here
     // You might wish to add more functions for your PID module
