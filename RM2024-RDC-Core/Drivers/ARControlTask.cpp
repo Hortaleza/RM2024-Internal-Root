@@ -16,7 +16,7 @@ float Kp                        = 5;
 float Ki                        = 0;
 float Kd                        = 0;
 
-int RunRPM = 3000;
+int RunRPM = 5000;
 int Lstatus = 0;
 int Rstatus = 0;
 int status = 1;
@@ -114,7 +114,33 @@ void turnLeft(float degree){
 }
 
 //bool stopped = 0;
-
+void aimBox(float turn, float forward, int direction){
+    if (direction == 1){
+    ARMotor::left(3000);
+    }
+    if (direction == -1){
+    ARMotor::right(3000);
+    }
+        vTaskDelay(turn);
+        ARMotor::stop();
+        vTaskDelay(100);
+        ARMotor::forward(3000);
+        vTaskDelay(forward);
+        ARMotor::stop();
+        MG996R::setServoAngle(90);
+        vTaskDelay(1000);
+        ARMotor::forward(-3000);
+        vTaskDelay(forward);
+        if (direction == 1){
+        ARMotor::right(3000);
+        }
+        if (direction == -1){
+            ARMotor::left(3000);
+        }
+        vTaskDelay(turn);
+        ARMotor::stop();
+        vTaskDelay(500);
+}
 void run(){
     updateStatus();
     if (reachBlackLine==0){
@@ -154,20 +180,20 @@ void run(){
     }
     //27.6 9.74
     else if (reachBlackLine && allowToProceed){
-        ARMotor::left(3000);
-        vTaskDelay(214.66666666666667);
-        ARMotor::stop();
-        vTaskDelay(100);
-        ARMotor::forward(3000);
-        vTaskDelay(1000);
-        ARMotor::stop();
-        vTaskDelay(100);
-        ARMotor::forward(-3000);
-        vTaskDelay(1000);
-        ARMotor::right(3000);
-        vTaskDelay(214.66666666666667);
-        ARMotor::stop();
-        vTaskDelay(100);
+        for (int i=0; i<2; i++){
+        if (HC05::boxesChosen[i] =='1'){
+        aimBox(140, 1350,1);
+        }
+        else if (HC05::boxesChosen[i] =='2'){
+        aimBox(65, 1250,1);
+        }
+        else if (HC05::boxesChosen[i] =='3'){
+        aimBox(65, 1250,-1);
+        }
+        else if (HC05::boxesChosen[i] =='4'){
+        aimBox(140, 1350,-1);
+        }
+        }
         allowToProceed=0;
 
 

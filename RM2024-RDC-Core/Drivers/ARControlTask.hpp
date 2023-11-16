@@ -7,6 +7,7 @@
 #include "PID.hpp"
 #include "DJIMotor.hpp"
 #include "ARMotorTask.hpp"
+#include "MG996R.hpp"
 namespace ARControl
 {
 void updateStatus();
@@ -18,5 +19,6 @@ void run();
 void test();
 void turnFixedDistance(uint32_t, int);
 void turn (uint32_t);
+
 }
 #endif
