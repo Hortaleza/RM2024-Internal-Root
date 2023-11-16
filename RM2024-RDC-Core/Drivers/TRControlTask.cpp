@@ -84,28 +84,28 @@ void wholeTRControl(int delay)
     /* ===== Goto the mode ===== */
 
     // Check if is auto mode
-    if (left_mode == 3)
-    {
-        runAutoMode(delay);
-        return; // This return is a MUST!!!
-    }
+    // if (left_mode == 3)
+    // {
+    //     runAutoMode(delay);
+    //     return; // This return is a MUST!!!
+    // }
 
     // If manual then go to the specific one
     if (right_mode == 2)
     {
-        runNormalMode(1, delay);
+        runNormalMode(0.63, delay);
         return;
     }
     if (right_mode == 1)
     {
         // Slow moving
-        runNormalMode(0.1, delay);
+        runNormalMode(0.18, delay);
         return;
     }
     if (right_mode == 3)
     {
         // Slow moving plus arm control (without turning)
-        runArmMode(0.1, delay);
+        runArmMode(0.18, delay);
         return;
     }
 }
@@ -122,8 +122,6 @@ void runNormalMode(float speed, int delay)
     double forward = signedSquare(DR16::uniformed.channel1);
     double strafe  = signedSquare(DR16::uniformed.channel0);
     double turn    = signedSquare(DR16::uniformed.channel2);
-
-    double targetRatio[4];
     
     // @todo: Needs to reset the signs to match our motor setup!!
 
@@ -135,10 +133,10 @@ void runNormalMode(float speed, int delay)
     // Find the one with the maximum absolute value among the four
     double maxabs = (abs(forward) + abs(strafe) + abs(turn));
     if (maxabs >= 1) {
-        targetRatio[0] /= maxabs;
-        targetRatio[1] /= maxabs;
-        targetRatio[2] /= maxabs;
-        targetRatio[3] /= maxabs;
+        targetRatio[indices[0]] /= maxabs;
+        targetRatio[indices[1]] /= maxabs;
+        targetRatio[indices[2]] /= maxabs;
+        targetRatio[indices[3]] /= maxabs;
     }
 
     // Set RPM
@@ -259,21 +257,23 @@ void runArmMode(float speed, int delay)
     // @todo: Check if stable and acquire stable output to replace the output limit
 
     const int16_t OUTPUT_LIMIT1 = 7000;
-    const int16_t OUTPUT_LIMIT2 = 7000;
+    const int16_t OUTPUT_LIMIT2 = 8000;
     const float speedLimit      = 0.95;
 
-    if ((abs(currentRPM[ARM_VERTICAL]) >
-         speedLimit * DJIMotor::MAX_RPM * ARMSpeed) &&
-        abs(o1) > OUTPUT_LIMIT1)
-    {
-        stopping[0] = 1;
-    }
-    if ((abs(currentRPM[ARM_HORIZONTAL]) >
-         speedLimit * DJIMotor::MAX_RPM * ARMSpeed) &&
-        abs(o2) > OUTPUT_LIMIT2)
-    {
-        stopping[1] = 1;
-    }
+    // Check if the output exceeds limit
+
+    // if ((abs(currentRPM[ARM_VERTICAL]) >
+    //      speedLimit * DJIMotor::MAX_RPM * ARMSpeed) &&
+    //     abs(o1) > OUTPUT_LIMIT1)
+    // {
+    //     stopping[0] = 1;
+    // }
+    // if ((abs(currentRPM[ARM_HORIZONTAL]) >
+    //      speedLimit * DJIMotor::MAX_RPM * ARMSpeed) &&
+    //     abs(o2) > OUTPUT_LIMIT2)
+    // {
+    //     stopping[1] = 1;
+    // }
 
     if (stopping[0] == 1) {
         targetRPM[ARM_VERTICAL] = 0;
