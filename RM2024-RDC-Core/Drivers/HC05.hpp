@@ -10,7 +10,11 @@
 namespace HC05
 {
 
-const int DATASIZE = 1;
+//extern bool boxesChosen[4];
+
+
+const int DATASIZE = 2;
+extern uint8_t boxesChosen[DATASIZE];
 
 void init();
 bool getConnectionStatus(uint32_t timeLimit);

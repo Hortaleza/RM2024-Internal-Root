@@ -9,8 +9,8 @@ bool connected  = false; // needs updating
 
 
 
-uint8_t rxBuffer[DATASIZE];
-
+uint8_t rxBuffer[DATASIZE] = {};
+uint8_t boxesChosen[DATASIZE] = {};
 
 uint32_t lastReceiveTick = HAL_GetTick();
 
@@ -43,7 +43,7 @@ void ErrorCallback(UART_HandleTypeDef *huart)
 {
     clearMemory();
     HAL_UART_Abort_IT(huart);
-    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 1);
+    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, DATASIZE);
 }
 
 // Normal Callback Function
@@ -61,7 +61,9 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
     lastReceiveTick = HAL_GetTick();
 
     // @todo: Decode the data after receiving
-
+for (int i=0;i<DATASIZE;i++){
+boxesChosen[i] = rxBuffer[i];
+}
     // @todo: Verify decoded data range;
 
     bool valid = 1;
@@ -74,7 +76,7 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
 
 
     // Repeat
-    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, 1);
+    HAL_UARTEx_ReceiveToIdle_IT(huart, rxBuffer, DATASIZE);
 }
 
 /*================================================================================*/
@@ -82,7 +84,7 @@ void init()
 {
     HAL_UART_RegisterRxEventCallback(&huart3, rxEventCallback);
     HAL_UART_RegisterCallback(&huart3, HAL_UART_ERROR_CB_ID, ErrorCallback);
-    HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuffer, 1);
+    HAL_UARTEx_ReceiveToIdle_IT(&huart3, rxBuffer, DATASIZE);
 }
 } // namespace HC06
 

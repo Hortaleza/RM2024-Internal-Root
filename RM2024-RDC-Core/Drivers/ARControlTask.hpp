@@ -6,6 +6,7 @@
 #include "main.h"
 #include "PID.hpp"
 #include "DJIMotor.hpp"
+#include "ARMotorTask.hpp"
 namespace ARControl
 {
 void updateStatus();
