@@ -28,12 +28,14 @@ StackType_t uxReceiveTaskStack[256];
 StackType_t uxARTaskStack[512];
 StackType_t uxUltraSoundTaskStack[256];
 StackType_t uxBTreceiveStack[256];
+StackType_t uxARMotorStack[256];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
 StaticTask_t xARTaskTCB;
 StaticTask_t xUltraSoundTaskTCB;
 StaticTask_t xBTreceiveTCB;
+StaticTask_t xARMotorTCB;
 float distance1 = 0;
 float distance2 = 0;
 
@@ -84,9 +86,19 @@ void ARTask(void *)
 {
     while (true)
     {
-        // For test use
+        
         
         ARControl::run();
+        vTaskDelay(1);
+    }
+}
+void ARMotorTask(void *)
+{
+    while (true)
+    {
+       
+        
+        ARMotor::MotorTask();
         vTaskDelay(1);
     }
 }
@@ -116,8 +128,8 @@ void startUserTasks()
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
     
-    xTaskCreateStatic(
-        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
+    // xTaskCreateStatic(
+    //     motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,
@@ -127,14 +139,16 @@ void startUserTasks()
                       &xReceiveTaskTCB);
     xTaskCreateStatic(
         ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
-    xTaskCreateStatic(
-        ultraSoundTask,
-        "ultraSoundTask",
-        256,
-        NULL,
-        1,
-        uxUltraSoundTaskStack,
-        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+        xTaskCreateStatic(
+        ARMotorTask, "ARMotorTask", 256, NULL, 1, uxARMotorStack, &xARMotorTCB);
+    // xTaskCreateStatic(
+    //     ultraSoundTask,
+    //     "ultraSoundTask",
+    //     256,
+    //     NULL,
+    //     1,
+    //     uxUltraSoundTaskStack,
+    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 xTaskCreateStatic(
          BTreceive, "BTreceive", 256, NULL, 1, uxBTreceiveStack, &xBTreceiveTCB);
     /**
