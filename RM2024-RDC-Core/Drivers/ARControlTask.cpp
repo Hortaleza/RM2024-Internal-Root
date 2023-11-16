@@ -21,6 +21,7 @@ int Lstatus = 0;
 int Rstatus = 0;
 int status = 1;
 int status2 = 1;
+int servoCount = 1;
 int allowToProceed = 0;
 int reachBlackLine = 0;
 uint32_t startTime = 0;
@@ -127,7 +128,12 @@ void aimBox(float turn, float forward, int direction){
         ARMotor::forward(3000);
         vTaskDelay(forward);
         ARMotor::stop();
+        if (servoCount == 1){
         MG996R::setServoAngle(90);
+        }
+        else{
+            MG996R::setServoAngle(180);
+        }
         vTaskDelay(1000);
         ARMotor::forward(-3000);
         vTaskDelay(forward);
