@@ -128,11 +128,13 @@ void aimBox(float turn, float forward, int direction){
         ARMotor::forward(3000);
         vTaskDelay(forward);
         ARMotor::stop();
+        vTaskDelay(200);
         if (servoCount == 1){
         MG996R::setServoAngle(90);
+        servoCount++;
         }
         else{
-            MG996R::setServoAngle(180);
+            MG996R::setServoAngle(0);
         }
         vTaskDelay(1000);
         ARMotor::forward(-3000);
@@ -187,16 +189,16 @@ void run(){
     //27.6 9.74
     else if (reachBlackLine && allowToProceed){
         for (int i=0; i<2; i++){
-        if (HC05::boxesChosen[i] =='1'){
+        if (HC05::boxesChosen[i] =='4'){
         aimBox(140, 1350,1);
         }
-        else if (HC05::boxesChosen[i] =='2'){
+        else if (HC05::boxesChosen[i] =='3'){
         aimBox(65, 1250,1);
         }
-        else if (HC05::boxesChosen[i] =='3'){
+        else if (HC05::boxesChosen[i] =='2'){
         aimBox(65, 1250,-1);
         }
-        else if (HC05::boxesChosen[i] =='4'){
+        else if (HC05::boxesChosen[i] =='1'){
         aimBox(140, 1350,-1);
         }
         }

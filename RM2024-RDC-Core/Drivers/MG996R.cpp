@@ -19,7 +19,8 @@ namespace MG996R
 
   // depending on tim1 period in tim.c
   // Set the pulse width for the PWM signal
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseWidth);
+  //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseWidth);
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, pulseWidth);
   }
 
 
