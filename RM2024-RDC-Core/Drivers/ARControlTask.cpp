@@ -16,7 +16,7 @@ float Kp                        = 5;
 float Ki                        = 0;
 float Kd                        = 0;
 
-int RunRPM = 5000;
+int RunRPM = 6000;
 int Lstatus = 0;
 int Rstatus = 0;
 int status = 1;
@@ -26,6 +26,7 @@ int allowToProceed = 0;
 int reachBlackLine = 0;
 uint32_t startTime = 0;
 bool received = false;
+bool launched = false;
 // uint8_t box1;
 // uint8_t box2;
 //uint32_t stopTime = 1000;
@@ -117,10 +118,10 @@ void turnLeft(float degree){
 //bool stopped = 0;
 void aimBox(float turn, float forward, int direction){
     if (direction == 1){
-    ARMotor::left(1000);
+    ARMotor::left(500);
     }
     if (direction == -1){
-    ARMotor::right(1000);
+    ARMotor::right(500);
     }
         vTaskDelay(turn);
         ARMotor::stop();
@@ -130,7 +131,7 @@ void aimBox(float turn, float forward, int direction){
         ARMotor::stop();
         vTaskDelay(200);
         if (servoCount == 1){
-            for (int i =180; i>=90;i--){
+            for (int i =180; i>=90;i-=10){
                 MG996R::setServoAngle(i);
                 vTaskDelay(10);
             }
@@ -138,7 +139,7 @@ void aimBox(float turn, float forward, int direction){
         servoCount++;
         }
         else{
-            for (int i =90; i>=0;i--){
+            for (int i =90; i>=0;i-=10){
                 MG996R::setServoAngle(i);
                 vTaskDelay(10);
             }
@@ -147,10 +148,10 @@ void aimBox(float turn, float forward, int direction){
         ARMotor::forward(-3000);
         vTaskDelay(forward);
         if (direction == 1){
-        ARMotor::right(1000);
+        ARMotor::right(500);
         }
         if (direction == -1){
-            ARMotor::left(1000);
+            ARMotor::left(500);
         }
         vTaskDelay(turn);
         ARMotor::stop();
@@ -158,7 +159,14 @@ void aimBox(float turn, float forward, int direction){
 }
 void run(){
     updateStatus();
-    if ((reachBlackLine==0 && allowToProceed) || (reachBlackLine==1 && allowToProceed)){
+    if ((reachBlackLine==0 && allowToProceed)){
+        if (launched == false){
+        vTaskDelay(2000);
+         ARMotor::forward(6000);
+            vTaskDelay(2000);
+            ARMotor::stop();
+            launched = true;
+        }
     if ( Lstatus && Rstatus ) {
         // if (status){
         // startTime = HAL_GetTick(); 
@@ -174,14 +182,14 @@ void run(){
         //     stopped = 1;
         //     reachBlackLine = 2;
         // }
-        if (reachBlackLine == 0){
-            ARMotor::forward(3000);
-            vTaskDelay(350);
-            reachBlackLine++;
-        }
-        else if (reachBlackLine == 1){
+        // if (reachBlackLine == 0){
+        //     ARMotor::forward(3000);
+        //     vTaskDelay(350);
+        //     reachBlackLine++;
+        // }
+        if (reachBlackLine == 0 && launched == true){
             ARMotor::stop();
-            reachBlackLine = 2;
+            reachBlackLine = 1;
         }
         
       }
@@ -202,19 +210,19 @@ void run(){
       }
     }
     //27.6 9.74
-    else if (reachBlackLine==2 && allowToProceed){
+    else if (reachBlackLine==1 && allowToProceed){
         for (int i=0; i<2; i++){
         if (HC05::boxesChosen[i] =='4'){
-        aimBox(420, 1350,1);
+        aimBox(670, 1350,1);
         }
         else if (HC05::boxesChosen[i] =='3'){
-        aimBox(90, 1250,1);
+        aimBox(250, 1300,1);
         }
         else if (HC05::boxesChosen[i] =='2'){
-        aimBox(195, 1250,-1);
+        aimBox(390, 1300,-1);
         }
         else if (HC05::boxesChosen[i] =='1'){
-        aimBox(600, 1350,-1);
+        aimBox(800, 1350,-1);
         }
         }
         allowToProceed=0;

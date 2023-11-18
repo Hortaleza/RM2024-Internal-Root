@@ -11,6 +11,7 @@ bool connected  = false; // needs updating
 
 uint8_t rxBuffer[DATASIZE] = {};
 uint8_t boxesChosen[DATASIZE] = {};
+uint8_t temp[2] = {};
 
 uint32_t lastReceiveTick = HAL_GetTick();
 
@@ -62,8 +63,18 @@ void rxEventCallback(UART_HandleTypeDef *huart, uint16_t dataSize)
 
     // @todo: Decode the data after receiving
 for (int i=0;i<DATASIZE;i++){
-boxesChosen[i] = rxBuffer[i];
+temp[i] = rxBuffer[i];
+//boxesChosen[i] = rxBuffer[i];
 }
+if (temp[1]>temp[0]){
+    boxesChosen[0] = temp[0];
+    boxesChosen[1] = temp[1];
+}
+else if (temp[1]<temp[0]){
+    boxesChosen[0] = temp[1];
+    boxesChosen[1] = temp[0];
+}
+
     // @todo: Verify decoded data range;
 
     bool valid = 1;

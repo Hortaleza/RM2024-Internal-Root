@@ -29,7 +29,7 @@ StackType_t uxARTaskStack[512];
 StackType_t uxUltraSoundTaskStack[256];
 StackType_t uxGearMotorTaskStack[256];
 StackType_t uxBTreceiveStack[256];
-StackType_t uxARMotorStack[256];
+StackType_t uxARMotorStack[512];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
 StaticTask_t xReceiveTaskTCB;
@@ -57,7 +57,7 @@ void motorTask(void *)
 
 void ultraSoundTask(void *)
 {
-    HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+    //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
     HCSR04::hcsr04_init();
     while (true)
     {
@@ -74,9 +74,9 @@ void ultraSoundTask(void *)
 
 void gearMotorTask(void *)
 {
-    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+    //HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
     // HAL_TIM_Base_Start(&htim3);
-    // HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
+    //HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
     // MG996R::setServoAngle(0);
     int angle = 0;
     while (true)
@@ -101,7 +101,7 @@ void CANReceiveTask(void *)
 }
 
 void ARTask(void *)
-{
+{ MG996R::setServoAngle(180);
     while (true)
     {
         
@@ -141,13 +141,14 @@ void startUserTasks()
 {
     HAL_CAN_Start(&hcan);
 
-    HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-
+    //HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+     
     DJIMotor::init();  // Initalize the DJIMotor driver
     DR16::init();      // Intialize the DR16 driver
     
-    xTaskCreateStatic(
-        motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
+    // xTaskCreateStatic(
+    //     motorTask, "motorTask", 256, NULL, 1, uxPIDTaskStack, &xPIDTaskTCB);
     xTaskCreateStatic(CANReceiveTask,
                       "CANReceiveTask",
                       256,
@@ -156,19 +157,21 @@ void startUserTasks()
                       uxReceiveTaskStack,
                       &xReceiveTaskTCB);
     xTaskCreateStatic(
-        ARTask, "ARTask", 256, NULL, 1, uxARTaskStack, &xARTaskTCB);
+        ARTask, "ARTask", 512, NULL, 1, uxARTaskStack, &xARTaskTCB);
         xTaskCreateStatic(
-        ARMotorTask, "ARMotorTask", 256, NULL, 1, uxARMotorStack, &xARMotorTCB);
-    xTaskCreateStatic(
-        ultraSoundTask,
-        "ultraSoundTask",
-        256,
-        NULL,
-        1,
-        uxUltraSoundTaskStack,
-        &xUltraSoundTaskTCB);  // Add the main task into the scheduler
+        ARMotorTask, "ARMotorTask", 512, NULL, 1, uxARMotorStack, &xARMotorTCB);
+    // xTaskCreateStatic(
+    //     ultraSoundTask,
+    //     "ultraSoundTask",
+    //     256,
+    //     NULL,
+    //     1,
+    //     uxUltraSoundTaskStack,
+    //     &xUltraSoundTaskTCB);  // Add the main task into the scheduler
 xTaskCreateStatic(
          BTreceive, "BTreceive", 256, NULL, 1, uxBTreceiveStack, &xBTreceiveTCB);
+        //  xTaskCreateStatic(
+        //  gearMotorTask, "gearMotorTask", 256, NULL, 1, uxGearMotorTaskStack, &xGearMotorTaskTCB);
     /**
      * @todo Add your own task here
      */
