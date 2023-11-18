@@ -117,10 +117,10 @@ void turnLeft(float degree){
 //bool stopped = 0;
 void aimBox(float turn, float forward, int direction){
     if (direction == 1){
-    ARMotor::left(3000);
+    ARMotor::left(1000);
     }
     if (direction == -1){
-    ARMotor::right(3000);
+    ARMotor::right(1000);
     }
         vTaskDelay(turn);
         ARMotor::stop();
@@ -130,20 +130,27 @@ void aimBox(float turn, float forward, int direction){
         ARMotor::stop();
         vTaskDelay(200);
         if (servoCount == 1){
-        MG996R::setServoAngle(90);
+            for (int i =180; i>=90;i--){
+                MG996R::setServoAngle(i);
+                vTaskDelay(10);
+            }
+        
         servoCount++;
         }
         else{
-            MG996R::setServoAngle(0);
+            for (int i =90; i>=0;i--){
+                MG996R::setServoAngle(i);
+                vTaskDelay(10);
+            }
         }
         vTaskDelay(1000);
         ARMotor::forward(-3000);
         vTaskDelay(forward);
         if (direction == 1){
-        ARMotor::right(3000);
+        ARMotor::right(1000);
         }
         if (direction == -1){
-            ARMotor::left(3000);
+            ARMotor::left(1000);
         }
         vTaskDelay(turn);
         ARMotor::stop();
@@ -151,7 +158,7 @@ void aimBox(float turn, float forward, int direction){
 }
 void run(){
     updateStatus();
-    if (reachBlackLine==0){
+    if ((reachBlackLine==0 && allowToProceed) || (reachBlackLine==1 && allowToProceed)){
     if ( Lstatus && Rstatus ) {
         // if (status){
         // startTime = HAL_GetTick(); 
@@ -167,8 +174,16 @@ void run(){
         //     stopped = 1;
         //     reachBlackLine = 2;
         // }
-        ARMotor::stop();
-        reachBlackLine = 1;
+        if (reachBlackLine == 0){
+            ARMotor::forward(3000);
+            vTaskDelay(350);
+            reachBlackLine++;
+        }
+        else if (reachBlackLine == 1){
+            ARMotor::stop();
+            reachBlackLine = 2;
+        }
+        
       }
     
     if ( Lstatus && !Rstatus ) {
@@ -187,19 +202,19 @@ void run(){
       }
     }
     //27.6 9.74
-    else if (reachBlackLine && allowToProceed){
+    else if (reachBlackLine==2 && allowToProceed){
         for (int i=0; i<2; i++){
         if (HC05::boxesChosen[i] =='4'){
-        aimBox(140, 1350,1);
+        aimBox(420, 1350,1);
         }
         else if (HC05::boxesChosen[i] =='3'){
-        aimBox(65, 1250,1);
+        aimBox(90, 1250,1);
         }
         else if (HC05::boxesChosen[i] =='2'){
-        aimBox(65, 1250,-1);
+        aimBox(195, 1250,-1);
         }
         else if (HC05::boxesChosen[i] =='1'){
-        aimBox(140, 1350,-1);
+        aimBox(600, 1350,-1);
         }
         }
         allowToProceed=0;
